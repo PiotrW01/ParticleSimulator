@@ -3,7 +3,7 @@
 #include "vec2.hpp"
 #include <memory>
 class Texture;
-class GLFWwindow;
+struct GLFWwindow;
 class Camera2D;
 
 class Mouse
