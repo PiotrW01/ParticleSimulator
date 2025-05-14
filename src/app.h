@@ -1,20 +1,32 @@
 #pragma once
 #include "glad.h"
 #include <GLFW/glfw3.h>
-class GUI;
-class Camera2D;
+#include "gui.h"
+#include "camera2d.h"
+#include "time.h"
+#include "fpscounter.h"
 
 class App
 {
 public:
-    static Camera2D cam;
-    static GLFWwindow *window;
-    static GUI gui;
-    void run();
     App();
-    App(int width, int height);
     ~App();
+    void run();
+    void vSyncEnabled(bool enabled);
+    void setWindowSize(int width, int height);
+    void setTargetFPS(int fps);
 
+private:
+    Camera2D cam;
+    GLFWwindow *window = nullptr;
+    GUI gui;
+    Time time;
+    FPSCounter fpsCounter;
+    int targetFPS = 0;
+    int targetTicks = 20;
+private:
+    double targetFrameTime = 0.0;
+    double targetTickTime = 1.0 / targetTicks;
 private:
     bool initializeWindow();
 };
