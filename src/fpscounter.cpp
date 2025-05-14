@@ -2,16 +2,18 @@
 #include "time.h"
 #include "logger.h"
 
-int FPSCounter::fps = 0;
-int64_t FPSCounter::lastTime = Time::getCurrentTime();
-
-void FPSCounter::update()
+void FPSCounter::update(double deltaTime)
 {
-    if ((Time::getCurrentTime() - lastTime) >= 1000)
+    acc += deltaTime;
+    if (acc >= 1.0)
     {
-        lastTime = Time::getCurrentTime();
-        Logger::info(fps);
+        Logger::info() << "FPS: " << fps;
+        acc = 0.0;
         fps = 0;
     }
+}
+
+void FPSCounter::addFrame()
+{
     fps++;
 }

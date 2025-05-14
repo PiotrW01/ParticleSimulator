@@ -3,9 +3,13 @@
 
 class FPSCounter
 {
-    public:
-        static int fps;
-        static void update();
-    private:
-        static int64_t lastTime;
+public:
+    int fps = 0;
+public:
+    void update(double deltaTime);
+    void addFrame();
+
+private:
+    double lastTime = 0;
+    double acc = 0.0;
 };

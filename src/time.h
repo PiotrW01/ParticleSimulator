@@ -3,10 +3,12 @@
 
 class Time
 {
-    public:
-        static float deltaTime;
-        static void update();
-        static int64_t getCurrentTime();
-    private:
-        static int64_t lastFrameTime;
+public:
+    double deltaTime = 0.0;
+    double currentTime = 0;
+public:
+    void update();
+    double getCurrentTime();
+private:
+    double lastFrameTime = 0;
 };
