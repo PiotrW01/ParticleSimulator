@@ -1,6 +1,6 @@
-#include "textureloader.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include "textureloader.h"
 
 unsigned char *TextureLoader::loadTexture(const char* fileName, int* x, int* y, int* n)
 {

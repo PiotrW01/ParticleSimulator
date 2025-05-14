@@ -64,7 +64,7 @@ void ParticleSystem::init()
     if (!success)
     {
         glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-        Logger::error(infoLog);
+        Logger::error() << infoLog;
     }
 
     // Create and compile the fragment shader
@@ -77,7 +77,7 @@ void ParticleSystem::init()
     if (!success)
     {
         glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-        Logger::error(infoLog);
+        Logger::error() << infoLog;
     }
 
     // Link the shaders into a shader program
@@ -91,7 +91,7 @@ void ParticleSystem::init()
     if (!success)
     {
         glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
-        Logger::error(infoLog);
+        Logger::error() << infoLog;
     }
 
     // Delete the shaders as they're linked into the program now
@@ -290,7 +290,7 @@ void ParticleSystem::render(Camera2D &camera)
 
     if (cLoc == -1)
     {
-        Logger::error("Could not get uniform");
+        Logger::error() << "Could not get uniform";
         return;
     }
     glUseProgram(shaderProgram);

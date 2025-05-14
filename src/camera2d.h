@@ -10,6 +10,7 @@ public:
 
     float viewportWidth, viewportHeight;
     Camera2D(float width, float height);
+    Camera2D() { viewportWidth = 640, viewportHeight = 480; }
 
     glm::mat4 getViewMatrix() const;
     glm::mat4 getProjectionMatrix() const;

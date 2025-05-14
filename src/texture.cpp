@@ -67,7 +67,7 @@ void Texture::loadTexture(const char *filename)
     }
     else
     {
-        Logger::warn("Failed to load texture");
+        Logger::warn() << "Failed to load texture";
     }
     TextureLoader::free(data);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -182,7 +182,7 @@ void Texture::prepare()
     if (!success)
     {
         glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-        Logger::error(infoLog);
+        Logger::error() << infoLog;
     }
 
     // Create and compile the fragment shader
@@ -195,7 +195,7 @@ void Texture::prepare()
     if (!success)
     {
         glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-        Logger::error(infoLog);
+        Logger::error() << infoLog;
     }
 
     // Link the shaders into a shader program
@@ -209,7 +209,7 @@ void Texture::prepare()
     if (!success)
     {
         glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
-        Logger::error(infoLog);
+        Logger::error() << infoLog;
     }
 
     // Delete the shaders as they're linked into the program now

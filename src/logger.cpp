@@ -1,34 +1,23 @@
 #include "logger.h"
-#include <iostream>
 
-LogLevel Logger::logLevel = LogLevel::All;
+Logger::Logger(Level level) : logLevel(level) {}
 
-void Logger::info(std::string str)
+Logger::~Logger() 
 {
-    std::cout << "[INFO] " << str << std::endl;
+    std::ostream& out = (logLevel == ERROR) ? std::cerr : std::cout;
+    out << logLabel(logLevel) << stream.str() << std::endl;
 }
 
-void Logger::info(const char *msg)
-{
-    std::cout << "[INFO] " << msg << std::endl;
-}
+Logger Logger::info() { return Logger(INFO); }
+Logger Logger::warn() { return Logger(WARNING); }
+Logger Logger::error() { return Logger(ERROR); }
 
-void Logger::info(int msg)
-{
-    std::cout << "[INFO] " << msg << std::endl;
-}
-
-void Logger::info(float msg)
-{
-    std::cout << "[INFO] " << msg << std::endl;
-}
-
-void Logger::warn(const char *msg)
-{
-    std::cout << "[WARN] " << msg << std::endl;
-}
-
-void Logger::error(const char *msg)
-{
-    std::cerr << "[ERROR] " << msg << std::endl;
+std::string Logger::logLabel(Level lvl) const {
+    switch (lvl) 
+    {
+    case INFO: return "\033[37m[INFO]\033[0m ";
+    case WARNING: return "\033[33m[WARNING]\033[0m ";
+    case ERROR: return "\033[31m[ERROR]\033[0m ";
+    default: return "[UNKNOWN] ";
+    }
 }

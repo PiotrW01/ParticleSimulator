@@ -17,11 +17,11 @@ void GUI::test()
     Button *btnPtr = btn.get();
     btn->onClick.subscribe([btnPtr]()
                            {
-        Logger::info("button clicked!");
+        Logger::info() << "button clicked!";
         btnPtr->isPressed = true; });
     btn->onRelease.subscribe([btnPtr]()
                              {
-        Logger::info("button released!");
+        Logger::info() << "button released!";
         btnPtr->isPressed = false; });
     btn->onHold.subscribe([btnPtr]
                           {
