@@ -37,7 +37,7 @@ void Mouse::update(GLFWwindow *window, Camera2D &cam)
     double xPos, yPos;
     glfwGetCursorPos(window, &xPos, &yPos);
     yPos = WINDOW_HEIGHT - yPos;
-    mouseDelta = glm::vec2(xPos - lastX, yPos - lastY);
+    mouseDelta = glm::vec2(xPos - lastX, yPos - lastY) / cameraZoom;
     lastX = xPos;
     lastY = yPos;
 

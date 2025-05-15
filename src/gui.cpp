@@ -10,9 +10,8 @@ GUI::GUI() {
 
 GUI::~GUI() = default;
 
-void GUI::test()
+void GUI::init()
 {
-    return;
     std::unique_ptr<Button> btn = std::make_unique<Button>(10, 10, 100, 100);
     Button *btnPtr = btn.get();
     btn->onClick.subscribe([btnPtr]()
@@ -27,13 +26,19 @@ void GUI::test()
                           {
         btnPtr->x += Mouse::mouseDelta.x;
         btnPtr->y += Mouse::mouseDelta.y; });
-    btn->loadTexture("123.png");
+    btn->loadTexture("assets/123.png");
     controls.push_back(std::move(btn));
+}
+
+bool GUI::isTriggered()
+{
+    return triggered;
 }
 
 void GUI::update()
 {
-    glm::vec2 pos = Mouse::getMousePos();
+    triggered = false;
+    glm::vec2 pos = Mouse::getWorldMousePos();
     for (auto &control : controls)
     {
         if (control->contains(pos.x, pos.y))
@@ -41,24 +46,27 @@ void GUI::update()
             if (InputManager::isKeyDown(Btn::LEFT))
             {
                 control->onClick.trigger();
+                triggered = true;
             }
             else if (InputManager::isKeyUp(Btn::LEFT))
             {
                 control->onRelease.trigger();
+                triggered = true;
             }
             else if (InputManager::isKeyHeld(Btn::LEFT))
             {
                 control->onHold.trigger();
+                triggered = true;
             }
         }
         control->update();
     }
 }
 
-void GUI::render()
+void GUI::render(Camera2D& cam)
 {
     for (auto &control : controls)
     {
-        control->render();
+        control->render(cam);
     }
 }

@@ -8,62 +8,59 @@
 #include "globals.h"
 #include "textureloader.h"
 #include "logger.h"
-
-Texture::Texture()
-{
-    prepare();
-}
+#include "shaders.h"
+#include "camera2d.h"
 
 Texture::~Texture()
 {
 }
 
-Texture::Texture(int posX, int posY, int width, int height)
+Texture::Texture(float posX, float posY)
 {
     this->posX = posX;
     this->posY = posY;
-    this->width = width;
-    this->height = height;
-    prepare();
 }
 
 void Texture::move(float x, float y)
 {
     this->posX += x;
     this->posY += y;
-    updatePosition();
+    //updatePosition();
+}
+
+void Texture::setSize(float width, float height)
+{
+    this->width = width;
+    this->height = height;
 }
 
 void Texture::setPosition(float x, float y)
 {
     this->posX = x;
     this->posY = y;
-    updatePosition();
 }
 
-bool Texture::contains(float x, float y)
+void Texture::load(const char *filename)
 {
-    return (x >= this->posX && x <= this->posX + this->width) &&
-           (y >= this->posY && y <= this->posY + this->height);
-}
-
-void Texture::loadTexture(const char *filename)
-{
-    glGenTextures(1, &texPtr);
-    glBindTexture(GL_TEXTURE_2D, texPtr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
     int x, y, n;
     auto *data = TextureLoader::loadTexture(filename, &x, &y, &n);
 
     if (data)
     {
+        glGenTextures(1, &texPtr);
+        glBindTexture(GL_TEXTURE_2D, texPtr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
         GLenum format = n == 4 ? GL_RGBA : GL_RGB;
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, x, y, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
+        width = x;
+        height = y;
+
+        prepare();
     }
     else
     {
@@ -73,17 +70,28 @@ void Texture::loadTexture(const char *filename)
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Texture::draw()
+void Texture::draw(const Camera2D &camera)
 {
-    // Draw the triangle
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(posX, posY, 0.0f));
+    model = glm::scale(model, glm::vec3(width, height, 1.0f));
+    auto cMatrix = camera.getCombinedMatrix() * model;
+    unsigned int cLoc = glGetUniformLocation(shaderProgram, "cMatrix");
+
+    if (cLoc == -1)
+    {
+        Logger::error() << "Could not get matrix";
+        return;
+    }
+
     glUseProgram(shaderProgram);
+    glUniformMatrix4fv(cLoc, 1, GL_FALSE, &cMatrix[0][0]);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texPtr);
     glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
 
-    glBindVertexArray(VAO);           // Bind the VAO
-    glDrawArrays(GL_TRIANGLES, 0, 6); // Draw the triangle
-    glBindVertexArray(0);             // Unbind the VAO
+    glBindVertexArray(VAO);           
+    glDrawArrays(GL_TRIANGLES, 0, 6); 
+    glBindVertexArray(0);             
 }
 
 void Texture::updatePosition()
@@ -97,83 +105,43 @@ void Texture::updatePosition()
 void Texture::calcVertices()
 {
     // top left
-    float x0 = (2.0f * this->posX) / WINDOW_WIDTH - 1.0f;
-    float y0 = 1.0f - (2.0f * this->posY) / WINDOW_HEIGHT;
+    //VertexPosTexture v0 = { {posX, posY}, {0.0f, 1.0f} };
 
-    // bottom right
-    float x1 = (2.0f * (this->posX + this->width)) / WINDOW_WIDTH - 1.0f;
-    float y1 = 1.0f - (2.0f * (this->posY + this->height)) / WINDOW_HEIGHT;
+    //// bottom left
+    //VertexPosTexture v1 = { {posX, posY + height}, {0.0f, 0.0f} };
+
+    //// bottom right
+    //VertexPosTexture v2 = { {posX + width, posY + height}, {1.0f, 0.0f} };
+
+    //// top right
+    //VertexPosTexture v3 = { {posX + width, posY}, {1.0f, 1.0f} };
+
+    // top left
+    VertexPosTexture v0 = { {0.0f, 0.0f}, {0.0f, 1.0f} };
 
     // bottom left
-    float x2 = x0;
-    float y2 = y1;
+    VertexPosTexture v1 = { {0.0f, 1.0f}, {0.0f, 0.0f} };
+
+    // bottom right
+    VertexPosTexture v2 = { {1.0f, 1.0f}, {1.0f, 0.0f} };
 
     // top right
-    float x3 = x1;
-    float y3 = y0;
+    VertexPosTexture v3 = { {1.0f, 0.0f}, {1.0f, 1.0f} };
 
+    //top left, bottom left, bottom right
+    //top right, top left, bottom right
     vertices = {
-        x0, y0, 0.0f, 0.0f, 0.0f, // top left
-        x2, y2, 0.0f, 0.0f, 1.0f, // bottom left
-        x1, y1, 0.0f, 1.0f, 1.0f, // bottom right
-
-        x3, y3, 0.0f, 1.0f, 0.0f, // top right
-        x0, y0, 0.0f, 0.0f, 0.0f, // top left
-        x1, y1, 0.0f, 1.0f, 1.0f  // bottom right
+        v0, v1, v2, v3, v0, v2
     };
 }
 
 void Texture::prepare()
 {
-    /*    const char* vertexShaderSource = R"(
-            #version 330 core
-            layout (location = 0) in vec3 aPos;
-            void main()
-            {
-                gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-            }
-        )";
 
-        const char* fragmentShaderSource = R"(
-            #version 330 core
-            out vec4 FragColor;
-            void main()
-            {
-                FragColor = vec4(0.0, 1.0, 0.0, 1.0);  // Green color
-            }
-        )"; */
-
-    const char *vertexShaderSource = R"(
-        #version 330 core
-        layout (location = 0) in vec3 aPos;
-        layout (location = 1) in vec2 aTexCoord;
-    
-        out vec2 TexCoord;
-    
-        void main()
-        {
-            gl_Position = vec4(aPos, 1.0);
-            TexCoord = aTexCoord;
-        }
-    )";
-
-    const char *fragmentShaderSource = R"(
-        #version 330 core
-        out vec4 FragColor;
-    
-        in vec2 TexCoord;
-    
-        uniform sampler2D texture1;
-    
-        void main()
-        {
-            FragColor = texture(texture1, TexCoord);
-        }
-    )";
 
     // Create and compile the vertex shader
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
+    glShaderSource(vertexShader, 1, &shaders::textureVertexShader, nullptr);
     glCompileShader(vertexShader);
     // Check for shader compile errors
     int success;
@@ -182,12 +150,12 @@ void Texture::prepare()
     if (!success)
     {
         glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-        Logger::error() << infoLog;
+        Logger::error() << "Texture preparation" << infoLog;
     }
 
     // Create and compile the fragment shader
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
+    glShaderSource(fragmentShader, 1, &shaders::textureFragmentShader, nullptr);
     glCompileShader(fragmentShader);
 
     // Check for shader compile errors
@@ -195,7 +163,7 @@ void Texture::prepare()
     if (!success)
     {
         glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-        Logger::error() << infoLog;
+        Logger::error() << "Texture preparation" << infoLog;
     }
 
     // Link the shaders into a shader program
@@ -209,7 +177,7 @@ void Texture::prepare()
     if (!success)
     {
         glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
-        Logger::error() << infoLog;
+        Logger::error() << "Texture preparation" << infoLog;
     }
 
     // Delete the shaders as they're linked into the program now
@@ -220,20 +188,19 @@ void Texture::prepare()
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
+    calcVertices();
     // Bind the VAO and VBO
     glBindVertexArray(VAO);
-
-    calcVertices();
-
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexPosTexture) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
 
     // Set the vertex attribute pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(VertexPosTexture), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexPosTexture), (void*)offsetof(VertexPosTexture, texCoord));
     glEnableVertexAttribArray(1);
+
     // Unbind the VBO and VAO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);

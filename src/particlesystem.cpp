@@ -9,7 +9,7 @@
 
 std::vector<std::vector<std::shared_ptr<Particle>>> ParticleSystem::grid;
 std::vector<std::shared_ptr<Particle>> ParticleSystem::particles;
-std::vector<Vertex> ParticleSystem::vertices;
+std::vector<VertexPosColor> ParticleSystem::vertices;
 unsigned int ParticleSystem::VAO, ParticleSystem::VBO;
 unsigned int ParticleSystem::shaderProgram;
 unsigned int ParticleSystem::particleCount = 0;
@@ -24,38 +24,11 @@ void ParticleSystem::init()
     particles.reserve(WINDOW_HEIGHT * WINDOW_WIDTH);
     std::srand(std::time(0));
 
-    const char *vertexShaderSource = R"(
-        #version 330 core
-        layout (location = 0) in vec2 aPos;
-        layout (location = 1) in vec4 aColor;
 
-        uniform mat4 cMatrix;
-
-        out vec4 vColor;
-
-        void main()
-        {
-            //vec2 flippedPos = vec2(aPos.x, windowSize.y - aPos.y);
-            //vec2 ndcPos = (flippedPos / windowSize) * 2.0 - 1.0;
-            //gl_Position = vec4(ndcPos, 0.0, 1.0);
-            gl_Position = cMatrix * vec4(aPos, 0.0, 1.0);
-            vColor = aColor;
-        }
-    )";
-
-    const char *fragmentShaderSource = R"(
-        #version 330 core
-        in vec4 vColor;
-        out vec4 FragColor;
-        void main()
-        {
-            FragColor = vColor;
-        }
-    )";
 
     // Create and compile the vertex shader
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
+    glShaderSource(vertexShader, 1, &shaders::solidColorVertexShader, nullptr);
     glCompileShader(vertexShader);
     // Check for shader compile errors
     int success;
@@ -69,7 +42,7 @@ void ParticleSystem::init()
 
     // Create and compile the fragment shader
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
+    glShaderSource(fragmentShader, 1, &shaders::solidColorFragmentShader, nullptr);
     glCompileShader(fragmentShader);
 
     // Check for shader compile errors
@@ -107,13 +80,13 @@ void ParticleSystem::init()
 
     // Bind the VBO and load data
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexPosColor) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
 
     // Set the vertex attribute pointers
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(VertexPosColor), (void *)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, color));
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(VertexPosColor), (void *)offsetof(VertexPosColor, color));
     glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -172,7 +145,7 @@ void ParticleSystem::update()
                 ParticleInfo neighborParticle = ParticleInfo::get(grid[i][j]->type);
                 if (grid[i][j]->wasUpdated)
                 {
-                    vertices.push_back(Vertex({glm::vec2(j, i), currentParticle.color}));
+                    vertices.push_back(VertexPosColor({glm::vec2(j, i), currentParticle.color}));
                     continue;
                 }
 
@@ -258,8 +231,8 @@ void ParticleSystem::update()
                     std::swap(grid[i][j], grid[row][col]);
                     grid[i][j]->wasUpdated = true;
                     grid[row][col]->wasUpdated = true;
-                    vertices.push_back(Vertex({glm::vec2(col, row), currentParticle.color}));
-                    vertices.push_back(Vertex({glm::vec2(j, i), neighborParticle.color}));
+                    vertices.push_back(VertexPosColor({glm::vec2(col, row), currentParticle.color}));
+                    vertices.push_back(VertexPosColor({glm::vec2(j, i), neighborParticle.color}));
                     continue;
                 }
 
@@ -268,7 +241,7 @@ void ParticleSystem::update()
                     grid[row][col] = std::move(grid[i][j]);
                     grid[row][col]->wasUpdated = true;
                 }
-                vertices.push_back(Vertex({glm::vec2(col, row), currentParticle.color}));
+                vertices.push_back(VertexPosColor({glm::vec2(col, row), currentParticle.color}));
             }
         }
     }
@@ -298,7 +271,7 @@ void ParticleSystem::render(Camera2D &camera)
 
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(VertexPosColor), vertices.data(), GL_STATIC_DRAW);
     glPointSize(camera.zoom);
 
     glDrawArrays(GL_POINTS, 0, vertices.size());

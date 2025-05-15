@@ -9,6 +9,7 @@
 #include "time.h"
 #include "logger.h"
 #include "particlesystem.h"
+#include <filesystem>
 
 
 App::App()
@@ -80,7 +81,7 @@ bool App::initializeWindow()
         glfwTerminate();
         return false;
     }
-
+    Logger::info() << std::filesystem::current_path();
     int x, y, n;
     unsigned char *data = TextureLoader::loadTexture("assets/thumbnail.png", &x, &y, &n);
     GLFWimage img;
@@ -92,6 +93,10 @@ bool App::initializeWindow()
     {
         glfwSetWindowIcon(window, 1, &img);
     }
+    else
+    {
+        Logger::warn() << "icon loading failed";
+    }
     TextureLoader::free(data);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     return true;
@@ -101,8 +106,9 @@ void App::run()
 {
     cam.viewportWidth = WINDOW_WIDTH;
     cam.viewportHeight = WINDOW_HEIGHT;
+    cam.position = glm::vec2(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
     Mouse::init(window);
-    // gui.test();
+    gui.init();
 
     ParticleSystem::init();
 
@@ -111,8 +117,6 @@ void App::run()
     double lastTickTime = glfwGetTime();
     double lastFrameTime = glfwGetTime();
     double accumulator = 0.0;
-
-    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -124,21 +128,31 @@ void App::run()
         glfwPollEvents();
         InputManager::update(window);
         Mouse::update(window, cam);
-        if (InputManager::isKeyHeld(Btn::LEFT))
+        gui.update();
+        if(!gui.isTriggered())
         {
-            ParticleSystem::spawnParticles(Mouse::getWorldMousePos(), ParticleType::Sand, 5);
-        }
-        if (InputManager::isKeyHeld(Key::ONE))
-        {
-            ParticleSystem::spawnParticles(Mouse::getWorldMousePos(), ParticleType::Water, 5);
+            if (InputManager::isKeyHeld(Btn::LEFT))
+            {
+                ParticleSystem::spawnParticles(Mouse::getWorldMousePos(), ParticleType::Sand, 5);
+            }
+            if (InputManager::isKeyHeld(Key::ONE))
+            {
+                ParticleSystem::spawnParticles(Mouse::getWorldMousePos(), ParticleType::Water, 5);
+            }
         }
         if (InputManager::isKeyHeld(Btn::RIGHT))
         {
-            cam.position -= Mouse::mouseDelta;
+            cam.position -= Mouse::mouseDelta * cam.zoom;
         }
         if (InputManager::isKeyDown(Key::Z))
         {
             step = !step;
+        }
+        if (InputManager::isKeyDown(Key::R))
+        {
+            cam.position = glm::vec2(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+            cam.zoom = 1.0f;
+            cam.rotation = 0.0f;
         }
         if (step)
         {
@@ -156,7 +170,10 @@ void App::run()
         fpsCounter.update(deltaTime);
         while (accumulator >= targetTickTime)
         {
-            ParticleSystem::update();
+            if (!step)
+            {
+                ParticleSystem::update();
+            }
             accumulator -= targetTickTime;
         }
 
@@ -164,6 +181,7 @@ void App::run()
         glClear(GL_COLOR_BUFFER_BIT);         
 
         ParticleSystem::render(cam);
+        gui.render(cam);
         glfwSwapBuffers(window);
     }
 }

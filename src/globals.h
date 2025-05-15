@@ -1,6 +1,3 @@
 #pragma once
-
-inline float deltaTime = 0.0f;
-
-inline int WINDOW_HEIGHT = 600;
-inline int WINDOW_WIDTH = 800;
+inline float WINDOW_HEIGHT = 600;
+inline float WINDOW_WIDTH = 800;

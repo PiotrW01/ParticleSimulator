@@ -18,15 +18,15 @@ bool Control::contains(float x, float y)
 
 void Control::loadTexture(const char *fileName)
 {
-    texture = std::make_unique<Texture>(x, y, width, height);
-    texture->loadTexture(fileName);
+    texture = std::make_unique<Texture>(x, y);
+    texture->load(fileName);
 }
 
-void Control::render()
+void Control::render(Camera2D& cam)
 {
     if (texture)
     {
-        texture->draw();
+        texture->draw(cam);
     }
 }
 
@@ -35,6 +35,5 @@ void Control::update()
     if (texture)
     {
         texture->setPosition(x, y);
-        texture->updatePosition();
     }
 }

@@ -2,6 +2,7 @@
 #include <memory>
 #include "event.h"
 class Texture;
+class Camera2D;
 
 class Control
 {
@@ -13,7 +14,7 @@ public:
     Event onDrag;
     Event onHold;
     Event onRelease;
-    void render();
+    void render(Camera2D& cam);
     bool contains(float x, float y);
     void loadTexture(const char *fileName);
     void update();

@@ -2,12 +2,8 @@
 #include <vector>
 #include <memory>
 #include "particle.h"
+#include "shaders.h"
 class Camera2D;
-struct Vertex
-{
-    glm::vec2 position;
-    Color color;
-};
 
 enum class CellStatus
 {
@@ -31,7 +27,7 @@ public:
 private:
     static std::vector<std::vector<std::shared_ptr<Particle>>> grid;
     static std::vector<std::shared_ptr<Particle>> particles;
-    static std::vector<Vertex> vertices;
+    static std::vector<VertexPosColor> vertices;
     static unsigned int VAO, VBO;
     static unsigned int shaderProgram;
     static bool isCellEmpty(int x, int y);
