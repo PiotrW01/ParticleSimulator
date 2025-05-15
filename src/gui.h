@@ -13,8 +13,8 @@ public:
     void init();
     void render(Camera2D& cam);
     void update();
-    std::vector<std::unique_ptr<Control>> controls;
-    bool isTriggered();
+    std::vector<std::shared_ptr<Control>> controls;
+    bool isMouseOverUI();
 private:
-    bool triggered = false;
+    bool mouseOverUI = false;
 };

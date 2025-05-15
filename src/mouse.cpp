@@ -1,11 +1,11 @@
 #include "mouse.h"
-#include "texture.h"
 #include "GLFW/glfw3.h"
 #include "inputmanager.h"
 #include "camera2d.h"
 #include "globals.h"
+#include "control.h"
 
-std::vector<Texture *> Mouse::attachedSprites;
+std::vector<std::shared_ptr<Control>> Mouse::controls;
 glm::vec2 Mouse::mouseDelta = glm::vec2(0.0f, 0.0f);
 glm::vec2 Mouse::cameraPos = glm::vec2(0.0f, 0.0f);
 float Mouse::lastX = 0.0f, Mouse::lastY = 0.0f;
@@ -41,23 +41,18 @@ void Mouse::update(GLFWwindow *window, Camera2D &cam)
     lastX = xPos;
     lastY = yPos;
 
-    if (InputManager::isKeyUp(Btn::LEFT))
+    if (InputManager::isKeyJustReleased(Btn::LEFT))
     {
-        attachedSprites.clear();
+        controls.clear();
     }
-    for (auto &sprite : attachedSprites)
+    for (auto& control : controls)
     {
-        sprite->move(mouseDelta.x, mouseDelta.y);
+        control->x += mouseDelta.x;
+        control->y += mouseDelta.y;
     }
 }
 
-void Mouse::attachSprite(Texture &sprite)
+void Mouse::attachControl(std::shared_ptr<Control> c)
 {
-    for (auto *s : attachedSprites)
-    {
-        if (s == &sprite)
-            return;
-    }
-
-    attachedSprites.push_back(&sprite);
+    controls.push_back(std::move(c));
 }

@@ -2,9 +2,9 @@
 #include <vector>
 #include "vec2.hpp"
 #include <memory>
-class Texture;
 struct GLFWwindow;
 class Camera2D;
+class Control;
 
 class Mouse
 {
@@ -14,10 +14,10 @@ public:
     static glm::vec2 getWorldMousePos();
     static void init(GLFWwindow *window);
     static void update(GLFWwindow *window, Camera2D &cam);
-    static void attachSprite(Texture &sprite);
-    static std::vector<Texture *> attachedSprites;
+    static void attachControl(std::shared_ptr<Control> c);
 
 private:
+    static std::vector<std::shared_ptr<Control>> controls;
     static float lastX, lastY;
     static glm::vec2 cameraPos;
     static float cameraZoom;

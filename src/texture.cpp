@@ -64,7 +64,7 @@ void Texture::load(const char *filename)
     }
     else
     {
-        Logger::warn() << "Failed to load texture";
+        LOG_WARN << "Failed to load texture";
     }
     TextureLoader::free(data);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -79,7 +79,7 @@ void Texture::draw(const Camera2D &camera)
 
     if (cLoc == -1)
     {
-        Logger::error() << "Could not get matrix";
+        LOG_ERROR << "Could not get matrix";
         return;
     }
 
@@ -150,7 +150,7 @@ void Texture::prepare()
     if (!success)
     {
         glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-        Logger::error() << "Texture preparation" << infoLog;
+        LOG_ERROR << "Texture preparation" << infoLog;
     }
 
     // Create and compile the fragment shader
@@ -163,7 +163,7 @@ void Texture::prepare()
     if (!success)
     {
         glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-        Logger::error() << "Texture preparation" << infoLog;
+        LOG_ERROR << "Texture preparation" << infoLog;
     }
 
     // Link the shaders into a shader program
@@ -177,7 +177,7 @@ void Texture::prepare()
     if (!success)
     {
         glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
-        Logger::error() << "Texture preparation" << infoLog;
+        LOG_ERROR << "Texture preparation" << infoLog;
     }
 
     // Delete the shaders as they're linked into the program now

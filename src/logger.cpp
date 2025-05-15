@@ -1,16 +1,17 @@
 #include "logger.h"
 
-Logger::Logger(Level level) : logLevel(level) {}
+Logger::Logger(Level level, const char* file, int line) 
+    : logLevel(level), file(file), line(line) {}
 
 Logger::~Logger() 
 {
     std::ostream& out = (logLevel == ERROR) ? std::cerr : std::cout;
-    out << logLabel(logLevel) << stream.str() << std::endl;
+    out << logLabel(logLevel) << "|" << getFilename(file) << ":" << line << "| " << stream.str() << std::endl;
 }
 
-Logger Logger::info() { return Logger(INFO); }
-Logger Logger::warn() { return Logger(WARNING); }
-Logger Logger::error() { return Logger(ERROR); }
+//Logger LOG_INFO { return Logger(INFO); }
+//Logger LOG_WARN { return Logger(WARNING); }
+//Logger LOG_ERROR { return Logger(ERROR); }
 
 std::string Logger::logLabel(Level lvl) const {
     switch (lvl) 

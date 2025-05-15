@@ -9,12 +9,12 @@ public:
 
     static KeyState getKeyState(int key);
 
-    static bool isKeyDown(Key key);    // Just pressed
-    static bool isKeyHeld(Key key);    // Being held
-    static bool isKeyUp(Key key);      // Just released
-    static bool isKeyDown(Btn key);    // Just pressed
-    static bool isKeyHeld(Btn key);    // Being held
-    static bool isKeyUp(Btn key);      // Just released
+    static bool isKeyJustPressed(Key key);    // Just pressed
+    static bool isKeyDown(Key key);    // Being held
+    static bool isKeyJustReleased(Key key);      // Just released
+    static bool isKeyJustPressed(Btn key);    // Just pressed
+    static bool isKeyDown(Btn key);    // Being held
+    static bool isKeyJustReleased(Btn key);      // Just released
 
 private:
     static std::unordered_map<int, bool> prevKeys;

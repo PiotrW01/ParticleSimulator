@@ -33,26 +33,26 @@ KeyState InputManager::getKeyState(int key) {
     return KeyState::Released;
 }
 
-bool InputManager::isKeyDown(Key key) {
+bool InputManager::isKeyJustPressed(Key key) {
     return getKeyState((int)key) == KeyState::JustPressed;
 }
 
-bool InputManager::isKeyHeld(Key key) {
+bool InputManager::isKeyDown(Key key) {
     return getKeyState((int)key) == KeyState::Held;
 }
 
-bool InputManager::isKeyUp(Key key) {
+bool InputManager::isKeyJustReleased(Key key) {
     return getKeyState((int)key) == KeyState::JustReleased;
 }
 
-bool InputManager::isKeyDown(Btn key) {
+bool InputManager::isKeyJustPressed(Btn key) {
     return getKeyState((int)key) == KeyState::JustPressed;
 }
 
-bool InputManager::isKeyHeld(Btn key) {
+bool InputManager::isKeyDown(Btn key) {
     return getKeyState((int)key) == KeyState::Held;
 }
 
-bool InputManager::isKeyUp(Btn key) {
+bool InputManager::isKeyJustReleased(Btn key) {
     return getKeyState((int)key) == KeyState::JustReleased;
 }

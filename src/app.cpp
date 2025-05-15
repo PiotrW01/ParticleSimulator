@@ -16,11 +16,11 @@ App::App()
 {
     if (initializeWindow())
     {
-        Logger::info() << "App initialized";
+        LOG_INFO << "App initialized";
     }
     else
     {
-        Logger::error() << "Error during app initialization";
+        LOG_ERROR << "Error during app initialization";
     }
 }
 
@@ -29,14 +29,14 @@ App::~App()
     if (window)
         glfwDestroyWindow(window);
     glfwTerminate();
-    Logger::info() << "App destroyed";
+    LOG_INFO << "App destroyed";
 }
 
 bool App::initializeWindow()
 {
     if (!glfwInit())
     {
-        Logger::error() << "glfw init error";
+        LOG_ERROR << "glfw init error";
         return false;
     }
 
@@ -73,15 +73,14 @@ bool App::initializeWindow()
         });
     glfwSetWindowSizeLimits(window, 320, 180, 7680, 4320);
     glfwMakeContextCurrent(window);
-    // glfwSetWindowAspectRatio(window, 16, 9);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        Logger::error() << "glad init error";
+        LOG_ERROR << "glad init error";
         glfwTerminate();
         return false;
     }
-    Logger::info() << std::filesystem::current_path();
+    LOG_INFO << std::filesystem::current_path();
     int x, y, n;
     unsigned char *data = TextureLoader::loadTexture("assets/thumbnail.png", &x, &y, &n);
     GLFWimage img;
@@ -95,7 +94,7 @@ bool App::initializeWindow()
     }
     else
     {
-        Logger::warn() << "icon loading failed";
+        LOG_WARN << "icon loading failed";
     }
     TextureLoader::free(data);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -129,26 +128,26 @@ void App::run()
         InputManager::update(window);
         Mouse::update(window, cam);
         gui.update();
-        if(!gui.isTriggered())
+        if(!gui.isMouseOverUI())
         {
-            if (InputManager::isKeyHeld(Btn::LEFT))
+            if (InputManager::isKeyDown(Btn::LEFT))
             {
                 ParticleSystem::spawnParticles(Mouse::getWorldMousePos(), ParticleType::Sand, 5);
             }
-            if (InputManager::isKeyHeld(Key::ONE))
+            if (InputManager::isKeyDown(Key::ONE))
             {
                 ParticleSystem::spawnParticles(Mouse::getWorldMousePos(), ParticleType::Water, 5);
             }
         }
-        if (InputManager::isKeyHeld(Btn::RIGHT))
+        if (InputManager::isKeyDown(Btn::RIGHT))
         {
             cam.position -= Mouse::mouseDelta * cam.zoom;
         }
-        if (InputManager::isKeyDown(Key::Z))
+        if (InputManager::isKeyJustPressed(Key::Z))
         {
             step = !step;
         }
-        if (InputManager::isKeyDown(Key::R))
+        if (InputManager::isKeyJustPressed(Key::R))
         {
             cam.position = glm::vec2(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
             cam.zoom = 1.0f;
@@ -156,7 +155,7 @@ void App::run()
         }
         if (step)
         {
-            if (InputManager::isKeyDown(Key::TWO))
+            if (InputManager::isKeyJustPressed(Key::TWO))
             {
                 ParticleSystem::update();
             }

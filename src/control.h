@@ -13,7 +13,12 @@ public:
     Event onClick;
     Event onDrag;
     Event onHold;
-    Event onRelease;
+    Event onRelease;    
+    Event onClickOver;
+    Event onDragOver;
+    Event onHoldOver;
+    Event onReleaseOver;
+    Event onHover;
     void render(Camera2D& cam);
     bool contains(float x, float y);
     void loadTexture(const char *fileName);

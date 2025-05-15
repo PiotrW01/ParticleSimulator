@@ -7,7 +7,7 @@ void FPSCounter::update(double deltaTime)
     acc += deltaTime;
     if (acc >= 1.0)
     {
-        Logger::info() << "FPS: " << fps;
+        LOG_INFO << "FPS: " << fps;
         acc = 0.0;
         fps = 0;
     }

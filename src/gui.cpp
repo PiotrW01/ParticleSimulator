@@ -12,51 +12,52 @@ GUI::~GUI() = default;
 
 void GUI::init()
 {
-    std::unique_ptr<Button> btn = std::make_unique<Button>(10, 10, 100, 100);
-    Button *btnPtr = btn.get();
-    btn->onClick.subscribe([btnPtr]()
-                           {
-        Logger::info() << "button clicked!";
-        btnPtr->isPressed = true; });
-    btn->onRelease.subscribe([btnPtr]()
-                             {
-        Logger::info() << "button released!";
-        btnPtr->isPressed = false; });
-    btn->onHold.subscribe([btnPtr]
-                          {
-        btnPtr->x += Mouse::mouseDelta.x;
-        btnPtr->y += Mouse::mouseDelta.y; });
+    std::shared_ptr<Button> btn = std::make_shared<Button>(10, 10, 100, 100);
+    btn->onClick.subscribe([btn]()
+        {
+            btn.get()->isPressed = true;
+            Mouse::attachControl(btn);
+        });
+
+    btn->onRelease.subscribe([btn]()
+        {
+            btn.get()->isPressed = false;
+        });
+
+    btn->onHold.subscribe([btn]
+        {
+        });
     btn->loadTexture("assets/123.png");
     controls.push_back(std::move(btn));
 }
 
-bool GUI::isTriggered()
+bool GUI::isMouseOverUI()
 {
-    return triggered;
+    return mouseOverUI;
 }
 
 void GUI::update()
 {
-    triggered = false;
+    mouseOverUI = false;
     glm::vec2 pos = Mouse::getWorldMousePos();
     for (auto &control : controls)
     {
         if (control->contains(pos.x, pos.y))
         {
-            if (InputManager::isKeyDown(Btn::LEFT))
+            mouseOverUI = true;
+            control->onHover.trigger();
+
+            if (InputManager::isKeyJustPressed(Btn::LEFT))
             {
                 control->onClick.trigger();
-                triggered = true;
             }
-            else if (InputManager::isKeyUp(Btn::LEFT))
+            else if (InputManager::isKeyJustReleased(Btn::LEFT))
             {
-                control->onRelease.trigger();
-                triggered = true;
+                control->onReleaseOver.trigger();
             }
-            else if (InputManager::isKeyHeld(Btn::LEFT))
+            else if (InputManager::isKeyDown(Btn::LEFT))
             {
-                control->onHold.trigger();
-                triggered = true;
+                control->onHoldOver.trigger();
             }
         }
         control->update();
