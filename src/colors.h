@@ -14,4 +14,6 @@ struct Colors
     static constexpr Color GREEN = Color(0.0f, 1.0f, 0.0f);
     static constexpr Color BLUE = Color(0.0f, 0.0f, 1.0f);
     static constexpr Color SAND = Color(0.8f, 0.6f, 0.4f);
+    static constexpr Color GRAY = Color(0.3f, 0.3f, 0.3f);
+
 };

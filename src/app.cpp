@@ -1,15 +1,12 @@
 #include "app.h"
 #include "const.h"
 #include "globals.h"
-#include <chrono>
 #include "textureloader.h"
 #include "fpscounter.h"
 #include "inputmanager.h"
 #include "mouse.h"
-#include "time.h"
 #include "logger.h"
 #include "particlesystem.h"
-#include <filesystem>
 
 
 App::App()
@@ -80,7 +77,7 @@ bool App::initializeWindow()
         glfwTerminate();
         return false;
     }
-    LOG_INFO << std::filesystem::current_path();
+
     int x, y, n;
     unsigned char *data = TextureLoader::loadTexture("assets/thumbnail.png", &x, &y, &n);
     GLFWimage img;
@@ -106,16 +103,15 @@ void App::run()
     cam.viewportWidth = WINDOW_WIDTH;
     cam.viewportHeight = WINDOW_HEIGHT;
     cam.position = glm::vec2(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+    ParticleSystem::init();
     Mouse::init(window);
     gui.init();
 
-    ParticleSystem::init();
-
-    bool step = false;
-
+    FPSCounter fpsCounter;
     double lastTickTime = glfwGetTime();
     double lastFrameTime = glfwGetTime();
     double accumulator = 0.0;
+    bool step = false;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -138,6 +134,10 @@ void App::run()
             {
                 ParticleSystem::spawnParticles(Mouse::getWorldMousePos(), ParticleType::Water, 5);
             }
+            if (InputManager::isKeyDown(Key::THREE))
+            {
+                ParticleSystem::spawnParticles(Mouse::getWorldMousePos(), ParticleType::Smoke, 5);
+            }
         }
         if (InputManager::isKeyDown(Btn::RIGHT))
         {
@@ -153,16 +153,14 @@ void App::run()
             cam.zoom = 1.0f;
             cam.rotation = 0.0f;
         }
-        if (step)
+        if (step || true)
         {
             if (InputManager::isKeyJustPressed(Key::TWO))
             {
+                auto time = glfwGetTime();
                 ParticleSystem::update();
+                LOG_INFO << "Time: " << glfwGetTime() - time;
             }
-        }
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        {
-            glfwSetWindowShouldClose(window, true);
         }
         
         fpsCounter.addFrame();
@@ -182,6 +180,10 @@ void App::run()
         ParticleSystem::render(cam);
         gui.render(cam);
         glfwSwapBuffers(window);
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        {
+            glfwSetWindowShouldClose(window, true);
+        }
     }
 }
 
@@ -208,6 +210,12 @@ void App::setTargetFPS(int fps)
     {
         targetFrameTime = 1.0 / targetFPS;
     }
+}
+
+void App::setTargetTicks(int ticks)
+{
+    targetTicks = ticks;
+    targetTickTime = 1.0 / targetTicks;
 }
 
 void App::setWindowSize(int width, int height)

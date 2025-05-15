@@ -3,8 +3,6 @@
 #include <GLFW/glfw3.h>
 #include "gui.h"
 #include "camera2d.h"
-#include "time.h"
-#include "fpscounter.h"
 
 class App
 {
@@ -15,16 +13,14 @@ public:
     void vSyncEnabled(bool enabled);
     void setWindowSize(int width, int height);
     void setTargetFPS(int fps);
+    void setTargetTicks(int ticks);
 
 private:
     Camera2D cam;
     GLFWwindow *window = nullptr;
     GUI gui;
-    Time time;
-    FPSCounter fpsCounter;
     int targetFPS = 0;
     int targetTicks = 20;
-private:
     double targetFrameTime = 0.0;
     double targetTickTime = 1.0 / targetTicks;
 private:

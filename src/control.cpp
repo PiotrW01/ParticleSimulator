@@ -1,6 +1,5 @@
 #include "control.h"
 #include "textureloader.h"
-#include "texture.h"
 
 Control::Control(float x, float y, float width, float height)
 {

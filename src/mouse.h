@@ -18,7 +18,7 @@ public:
 
 private:
     static std::vector<std::shared_ptr<Control>> controls;
-    static float lastX, lastY;
+    static double lastX, lastY;
     static glm::vec2 cameraPos;
     static float cameraZoom;
 };

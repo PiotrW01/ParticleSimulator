@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include <memory>
-class Texture;
 class Control;
 class Camera2D;
 

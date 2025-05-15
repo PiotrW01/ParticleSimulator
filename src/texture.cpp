@@ -3,8 +3,6 @@
 #include "texture.h"
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"
-#include "gtc/type_ptr.hpp"
-#include "const.h"
 #include "globals.h"
 #include "textureloader.h"
 #include "logger.h"
@@ -25,7 +23,6 @@ void Texture::move(float x, float y)
 {
     this->posX += x;
     this->posY += y;
-    //updatePosition();
 }
 
 void Texture::setSize(float width, float height)
@@ -94,47 +91,6 @@ void Texture::draw(const Camera2D &camera)
     glBindVertexArray(0);             
 }
 
-void Texture::updatePosition()
-{
-    calcVertices();
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
-void Texture::calcVertices()
-{
-    // top left
-    //VertexPosTexture v0 = { {posX, posY}, {0.0f, 1.0f} };
-
-    //// bottom left
-    //VertexPosTexture v1 = { {posX, posY + height}, {0.0f, 0.0f} };
-
-    //// bottom right
-    //VertexPosTexture v2 = { {posX + width, posY + height}, {1.0f, 0.0f} };
-
-    //// top right
-    //VertexPosTexture v3 = { {posX + width, posY}, {1.0f, 1.0f} };
-
-    // top left
-    VertexPosTexture v0 = { {0.0f, 0.0f}, {0.0f, 1.0f} };
-
-    // bottom left
-    VertexPosTexture v1 = { {0.0f, 1.0f}, {0.0f, 0.0f} };
-
-    // bottom right
-    VertexPosTexture v2 = { {1.0f, 1.0f}, {1.0f, 0.0f} };
-
-    // top right
-    VertexPosTexture v3 = { {1.0f, 0.0f}, {1.0f, 1.0f} };
-
-    //top left, bottom left, bottom right
-    //top right, top left, bottom right
-    vertices = {
-        v0, v1, v2, v3, v0, v2
-    };
-}
-
 void Texture::prepare()
 {
 
@@ -188,7 +144,24 @@ void Texture::prepare()
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
-    calcVertices();
+    // top left
+    VertexPosTexture v0 = { {0.0f, 0.0f}, {0.0f, 1.0f} };
+
+    // bottom left
+    VertexPosTexture v1 = { {0.0f, 1.0f}, {0.0f, 0.0f} };
+
+    // bottom right
+    VertexPosTexture v2 = { {1.0f, 1.0f}, {1.0f, 0.0f} };
+
+    // top right
+    VertexPosTexture v3 = { {1.0f, 0.0f}, {1.0f, 1.0f} };
+
+    //top left, bottom left, bottom right
+    //top right, top left, bottom right
+    vertices = {
+        v0, v1, v2, v3, v0, v2
+    };
+
     // Bind the VAO and VBO
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);

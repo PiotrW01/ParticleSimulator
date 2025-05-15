@@ -1,6 +1,6 @@
-#include "particlesystem.h"
 #include "glad.h"
 #include <GLFW/glfw3.h>
+#include "particlesystem.h"
 #include "logger.h"
 #include "globals.h"
 #include <cstdlib>
@@ -13,18 +13,23 @@ std::vector<VertexPosColor> ParticleSystem::vertices;
 unsigned int ParticleSystem::VAO, ParticleSystem::VBO;
 unsigned int ParticleSystem::shaderProgram;
 unsigned int ParticleSystem::particleCount = 0;
+int ParticleSystem::width = 300;
+int ParticleSystem::height = 100;
+Texture ParticleSystem::texture = { 0.0f, 0.0f };
 
 void ParticleSystem::init()
 {
-    grid.resize(WINDOW_HEIGHT);
+    texture.load("assets/white.png");
+    texture.setPosition(0, 0);
+    texture.setSize(width, height);
+    //WINDOW_HEIGHT
+    grid.resize(height);
     for (int i = 0; i < grid.size(); i++)
     {
-        grid[i].resize(WINDOW_WIDTH);
+        grid[i].resize(width);
     }
-    particles.reserve(WINDOW_HEIGHT * WINDOW_WIDTH);
+    particles.reserve(height * width);
     std::srand(std::time(0));
-
-
 
     // Create and compile the vertex shader
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -100,9 +105,10 @@ void ParticleSystem::spawnParticle(int x, int y, ParticleType type)
     {
         if (!grid[y][x])
         {
-            grid[y][x] = std::make_shared<Particle>(type);
-            particles.push_back(std::shared_ptr(grid[y][x]));
-            particleCount++;
+            auto particle = std::make_shared<Particle>(type);
+            particle->position = glm::vec2(y, x);
+            grid[y][x] = particle;
+            particles.push_back(particle);
         }
     }
 }
@@ -125,6 +131,42 @@ void ParticleSystem::spawnParticles(const glm::vec2 &spawnPos, ParticleType type
     }
 }
 
+std::vector<glm::ivec2> ParticleSystem::getNextCells(int i, int j, ParticleType type)
+{
+
+    std::vector<glm::ivec2> offsets;
+    switch (type)
+    {
+    case ParticleType::Sand:
+        offsets.push_back({ -1,0 });
+        for (int i = 1; i < rand() % 2 + 1; i++)
+        {
+            offsets.push_back({ -1,i });
+            offsets.push_back({ -1,-i });
+        }
+        break;
+    case ParticleType::Water:
+        offsets.push_back({ -1,0 });
+        for (int i = 1; i < rand() % 6 + 2; i++)
+        {
+            offsets.push_back({ -1,i });
+            offsets.push_back({ -1,-i });
+        }
+        break;
+    case ParticleType::Smoke:
+        offsets.push_back({ 1,0 });
+        for (int i = 1; i < rand() % 8 + 2; i++)
+        {
+            offsets.push_back({ 1,i });
+            offsets.push_back({ 1,-i });
+        }
+        break;
+    default:
+        break;
+    }
+    return offsets;
+}
+
 void ParticleSystem::update()
 {
     vertices.clear();
@@ -140,89 +182,42 @@ void ParticleSystem::update()
         {
             if (grid[i][j])
             {
-                int col = j, row = i;
+                int row = i, col = j;
                 ParticleInfo currentParticle = ParticleInfo::get(grid[i][j]->type);
-                ParticleInfo neighborParticle = ParticleInfo::get(grid[i][j]->type);
+                ParticleInfo neighborParticle = currentParticle;
                 if (grid[i][j]->wasUpdated)
                 {
-                    vertices.push_back(VertexPosColor({glm::vec2(j, i), currentParticle.color}));
+                    vertices.push_back(VertexPosColor({glm::vec2(col, row), currentParticle.color}));
                     continue;
                 }
-
                 bool swapped = false;
-                bool moved = false;
 
-                CellStatus fbelow = getCellStatus(j, i - 1);
-                CellStatus fbelowleft = getCellStatus(j - 1, i - 1);
-                CellStatus fbelowright = getCellStatus(j + 1, i - 1);
-                CellStatus fabove = getCellStatus(j, i + 1);
 
-                // BELOW
-                if (fbelow != CellStatus::INVALID)
+                auto offsets = getNextCells(i, j, grid[i][j]->type);
+                for (auto& offset : offsets)
                 {
-                    if (fbelow == CellStatus::OCCUPIED)
+                    glm::ivec2 cell = glm::ivec2(i, j) + offset;
+                    CellStatus status = getCellStatus(cell.x, cell.y);
+                    if (status == CellStatus::INVALID) continue;
+                    if (status == CellStatus::OCCUPIED)
                     {
-                        neighborParticle = ParticleInfo::get(grid[i - 1][j]->type);
+                        neighborParticle = ParticleInfo::get(grid[cell.x][cell.y]->type);
                         if (currentParticle.density > neighborParticle.density)
                         {
-                            if (!grid[i - 1][j]->wasUpdated)
+                            if (!grid[cell.x][cell.y]->wasUpdated)
                             {
-                                row--;
                                 swapped = true;
-                            }
-                        }
-                        else
-                        {
-                            if (fbelowleft != CellStatus::INVALID)
-                            {
-                                if (fbelowleft == CellStatus::OCCUPIED)
-                                {
-                                    neighborParticle = ParticleInfo::get(grid[i - 1][j - 1]->type);
-                                    if (currentParticle.density > neighborParticle.density)
-                                    {
-                                        if (!grid[i - 1][j - 1]->wasUpdated)
-                                        {
-                                            row--;
-                                            col--;
-                                            swapped = true;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (fbelowright != CellStatus::INVALID)
-                                        {
-                                            if (fbelowright == CellStatus::OCCUPIED)
-                                            {
-                                                neighborParticle = ParticleInfo::get(grid[i - 1][j + 1]->type);
-                                                if (currentParticle.density > neighborParticle.density)
-                                                {
-                                                    if (!grid[i - 1][j + 1]->wasUpdated)
-                                                    {
-                                                        row--;
-                                                        col++;
-                                                        swapped = true;
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                row--;
-                                                col++;
-                                            }
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    row--;
-                                    col--;
-                                }
+                                row = cell.x;
+                                col = cell.y;
+                                break;
                             }
                         }
                     }
                     else
                     {
-                        row--;
+                        row = cell.x;
+                        col = cell.y;
+                        break;
                     }
                 }
 
@@ -231,8 +226,8 @@ void ParticleSystem::update()
                     std::swap(grid[i][j], grid[row][col]);
                     grid[i][j]->wasUpdated = true;
                     grid[row][col]->wasUpdated = true;
-                    vertices.push_back(VertexPosColor({glm::vec2(col, row), currentParticle.color}));
-                    vertices.push_back(VertexPosColor({glm::vec2(j, i), neighborParticle.color}));
+                    vertices.push_back(VertexPosColor({glm::vec2(col, row) + 0.5f, currentParticle.color}));
+                    vertices.push_back(VertexPosColor({glm::vec2(j, i) + 0.5f, neighborParticle.color}));
                     continue;
                 }
 
@@ -241,17 +236,17 @@ void ParticleSystem::update()
                     grid[row][col] = std::move(grid[i][j]);
                     grid[row][col]->wasUpdated = true;
                 }
-                vertices.push_back(VertexPosColor({glm::vec2(col, row), currentParticle.color}));
+                vertices.push_back(VertexPosColor({glm::vec2(col, row) + 0.5f, currentParticle.color}));
             }
         }
     }
 }
 
-CellStatus ParticleSystem::getCellStatus(int x, int y)
+CellStatus ParticleSystem::getCellStatus(int row, int col)
 {
-    if (y >= grid.size() || x >= grid[0].size())
+    if (row >= height || col >= width || row < 0 || col < 0)
         return CellStatus::INVALID;
-    if (!grid[y][x])
+    if (!grid[row][col])
         return CellStatus::EMPTY;
     return CellStatus::OCCUPIED;
 }
@@ -259,6 +254,8 @@ CellStatus ParticleSystem::getCellStatus(int x, int y)
 void ParticleSystem::render(Camera2D &camera)
 {
     auto cMatrix = camera.getCombinedMatrix();
+    texture.draw(camera);
+
     unsigned int cLoc = glGetUniformLocation(shaderProgram, "cMatrix");
 
     if (cLoc == -1)

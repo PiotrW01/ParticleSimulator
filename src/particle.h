@@ -6,7 +6,8 @@
 enum class ParticleType : uint8_t
 {
     Water,
-    Sand
+    Sand,
+    Smoke
 };
 
 class Particle

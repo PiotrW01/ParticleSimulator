@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include "event.h"
-class Texture;
+#include "texture.h"
 class Camera2D;
 
 class Control

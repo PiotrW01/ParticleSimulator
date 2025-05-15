@@ -16,6 +16,9 @@ ParticleInfo ParticleInfo::get(ParticleType type)
     case ParticleType::Sand:
         return {2.0f, 1.0f, -1.0f, Colors::SAND};
         break;
+    case ParticleType::Smoke:
+        return { 0.1f, 1.0f, -1.0f, Colors::GRAY};
+        break;
     default:
         return {1.0f, 1.0f, -1.0f, Colors::BLACK};
         break;

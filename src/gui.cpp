@@ -1,5 +1,4 @@
 #include "gui.h"
-#include "texture.h"
 #include "mouse.h"
 #include "button.h"
 #include "inputmanager.h"

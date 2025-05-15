@@ -8,7 +8,7 @@
 std::vector<std::shared_ptr<Control>> Mouse::controls;
 glm::vec2 Mouse::mouseDelta = glm::vec2(0.0f, 0.0f);
 glm::vec2 Mouse::cameraPos = glm::vec2(0.0f, 0.0f);
-float Mouse::lastX = 0.0f, Mouse::lastY = 0.0f;
+double Mouse::lastX = 0.0, Mouse::lastY = 0.0;
 float Mouse::cameraZoom = 1.0f;
 
 void Mouse::init(GLFWwindow *window)

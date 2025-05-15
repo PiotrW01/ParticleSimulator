@@ -1,13 +1,12 @@
 #include "fpscounter.h"
-#include "time.h"
 #include "logger.h"
 
 void FPSCounter::update(double deltaTime)
 {
     acc += deltaTime;
-    if (acc >= 1.0)
+    if (acc >= 5.0)
     {
-        LOG_INFO << "FPS: " << fps;
+        LOG_INFO << "FPS: " << fps / 5.0;
         acc = 0.0;
         fps = 0;
     }
