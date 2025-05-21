@@ -1,5 +1,12 @@
-#include "app.h"
+#ifdef _WIN32
+#include <Windows.h>
+int main(int argc, char const* argv[]);
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    return main(__argc, const_cast<const char**>(__argv));
+}
+#endif
 
+#include "app.h"
 int main(int argc, char const *argv[])
 {
     App app;
