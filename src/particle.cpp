@@ -7,21 +7,16 @@ Particle::Particle(ParticleType type)
 
 ParticleInfo ParticleInfo::get(ParticleType type)
 {
+    static const ParticleInfo water = { 1.0f, 1.0f, -1.0f, Colors::BLUE };
+    static const ParticleInfo sand = { 2.0f, 1.0f, -1.0f, Colors::SAND };
+    static const ParticleInfo smoke = { 0.1f, 1.0f, -1.0f, Colors::GRAY };
+    static const ParticleInfo unknown = { 1.0f, 1.0f, -1.0f, Colors::BLACK };
+
     switch (type)
     {
-        // Density | viscosity | lifeTime | Color
-    case ParticleType::Water:
-        return {1.0f, 1.0f, -1.0f, Colors::BLUE};
-        break;
-    case ParticleType::Sand:
-        return {2.0f, 1.0f, -1.0f, Colors::SAND};
-        break;
-    case ParticleType::Smoke:
-        return { 0.1f, 1.0f, -1.0f, Colors::GRAY};
-        break;
-    default:
-        return {1.0f, 1.0f, -1.0f, Colors::BLACK};
-        break;
+    case ParticleType::Water: return water;
+    case ParticleType::Sand:  return sand;
+    case ParticleType::Smoke: return smoke;
+    default: return unknown;
     }
-    return {1.0f, 1.0f, -1.0f, Colors::BLACK};
 }

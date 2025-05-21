@@ -85,7 +85,8 @@ void ParticleSystem::init()
 
     // Bind the VBO and load data
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexPosColor) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexPosColor) * width * height, nullptr, GL_DYNAMIC_DRAW);
+    //glBufferData(GL_ARRAY_BUFFER, sizeof(VertexPosColor) * vertices.size(), nullptr, GL_DYNAMIC_DRAW);
 
     // Set the vertex attribute pointers
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(VertexPosColor), (void *)0);
@@ -269,7 +270,7 @@ void ParticleSystem::render(Camera2D &camera)
 
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(VertexPosColor), vertices.data(), GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(VertexPosColor), vertices.data());
     glPointSize(camera.zoom);
 
     glDrawArrays(GL_POINTS, 0, vertices.size());
