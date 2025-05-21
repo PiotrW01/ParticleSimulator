@@ -17,6 +17,8 @@ struct VertexPosTexture
 
 namespace shaders
 {
+    unsigned int compileShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
+
     constexpr const char* solidColorVertexShader = R"(
             #version 330 core
             layout (location = 0) in vec2 aPos;

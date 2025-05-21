@@ -31,50 +31,7 @@ void ParticleSystem::init()
     particles.reserve(height * width);
     std::srand(std::time(0));
 
-    // Create and compile the vertex shader
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &shaders::solidColorVertexShader, nullptr);
-    glCompileShader(vertexShader);
-    // Check for shader compile errors
-    int success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-        LOG_ERROR << infoLog;
-    }
-
-    // Create and compile the fragment shader
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &shaders::solidColorFragmentShader, nullptr);
-    glCompileShader(fragmentShader);
-
-    // Check for shader compile errors
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-        LOG_ERROR << infoLog;
-    }
-
-    // Link the shaders into a shader program
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    // Check for program linking errors
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success)
-    {
-        glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
-        LOG_ERROR << infoLog;
-    }
-
-    // Delete the shaders as they're linked into the program now
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+	shaderProgram = shaders::compileShaderProgram(shaders::solidColorVertexShader, shaders::solidColorFragmentShader);
 
     // Generate the VAO (Vertex Array Object), VBO (Vertex Buffer Object)
     glGenVertexArrays(1, &VAO);
