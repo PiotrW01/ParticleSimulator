@@ -7,6 +7,7 @@
 #include "mouse.h"
 #include "logger.h"
 #include "particlesystem.h"
+#include "textrenderer.h"
 
 App::App()
 {
@@ -110,6 +111,9 @@ void App::run()
     double accumulator = 0.0;
     bool step = false;
 
+    TextRenderer t;
+    t.init();
+
     while (!glfwWindowShouldClose(window))
     {
         double now = glfwGetTime();
@@ -180,6 +184,7 @@ void App::run()
 
         ParticleSystem::render(cam);
         gui.render(cam);
+		t.RenderText(cam, "Fps: " + std::to_string(fpsCounter.fps), 0.0f, cam.viewportHeight - 48, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
         glfwSwapBuffers(window);
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         {

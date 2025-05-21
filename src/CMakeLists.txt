@@ -5,6 +5,9 @@ file(GLOB HEADERS "*.h")
 add_library(glad STATIC ${CMAKE_SOURCE_DIR}/external/glad/glad.c)
 target_include_directories(glad PRIVATE ${CMAKE_SOURCE_DIR}/external/glad)
 
+
+
+
 add_executable(ParticleSimulator ${SOURCES} ${HEADERS})
 
 add_custom_command(
@@ -14,7 +17,7 @@ add_custom_command(
             $<TARGET_FILE_DIR:ParticleSimulator>/assets
 )
 
-target_link_libraries(ParticleSimulator glfw glad)
+target_link_libraries(ParticleSimulator glfw glad freetype)
 
 target_include_directories(ParticleSimulator PRIVATE ${CMAKE_SOURCE_DIR}/external/glm)
 target_include_directories(ParticleSimulator PRIVATE ${CMAKE_SOURCE_DIR}/external/glad)

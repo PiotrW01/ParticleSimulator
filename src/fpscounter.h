@@ -11,6 +11,7 @@ public:
     void addFrame();
 
 private:
+	int tempFPS = 0;
     float refreshTime = 1.0f;
     double lastTime = 0;
     double acc = 0.0;

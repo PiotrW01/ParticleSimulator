@@ -1,6 +1,7 @@
 #pragma once
 #include "vec2.hpp"
 #include "colors.h"
+#include "logger.h"
 struct VertexPosColor
 {
     glm::vec2 position;
@@ -70,6 +71,34 @@ namespace shaders
         void main()
         {
             FragColor = texture(texture1, texCoord);
+        }
+    )";
+
+	constexpr const char* textVertexShader = R"(
+        #version 330 core
+        layout (location = 0) in vec4 vertex;
+    
+        uniform mat4 pMatrix;
+        out vec2 texCoord;
+    
+        void main()
+        {
+            gl_Position = pMatrix * vec4(vertex.xy, 0.0, 1.0);
+            texCoord = vertex.zw;
+        }
+    )";
+
+	constexpr const char* textFragmentShader = R"(
+        #version 330 core
+        in vec2 texCoord;
+        uniform sampler2D text;
+        uniform vec3 textColor;
+        out vec4 FragColor;
+    
+        void main()
+        {
+            vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, texCoord).r);
+            FragColor = vec4(textColor, 1.0) * sampled;
         }
     )";
 }
