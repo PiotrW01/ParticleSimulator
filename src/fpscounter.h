@@ -5,11 +5,13 @@ class FPSCounter
 {
 public:
     int fps = 0;
+
 public:
     void update(double deltaTime);
     void addFrame();
 
 private:
+    float refreshTime = 1.0f;
     double lastTime = 0;
     double acc = 0.0;
 };

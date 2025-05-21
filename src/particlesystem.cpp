@@ -13,16 +13,16 @@ std::vector<VertexPosColor> ParticleSystem::vertices;
 unsigned int ParticleSystem::VAO, ParticleSystem::VBO;
 unsigned int ParticleSystem::shaderProgram;
 unsigned int ParticleSystem::particleCount = 0;
-int ParticleSystem::width = 300;
-int ParticleSystem::height = 100;
-Texture ParticleSystem::texture = { 0.0f, 0.0f };
+int ParticleSystem::width = 600;
+int ParticleSystem::height = 400;
+Texture ParticleSystem::texture = {0.0f, 0.0f};
 
 void ParticleSystem::init()
 {
     texture.load("assets/white.png");
     texture.setPosition(0, 0);
     texture.setSize(width, height);
-    //WINDOW_HEIGHT
+    // WINDOW_HEIGHT
     grid.resize(height);
     for (int i = 0; i < grid.size(); i++)
     {
@@ -109,6 +109,7 @@ void ParticleSystem::spawnParticle(int x, int y, ParticleType type)
             particle->position = glm::vec2(y, x);
             grid[y][x] = particle;
             particles.push_back(particle);
+            particleCount++;
         }
     }
 }
@@ -138,27 +139,27 @@ std::vector<glm::ivec2> ParticleSystem::getNextCells(int i, int j, ParticleType 
     switch (type)
     {
     case ParticleType::Sand:
-        offsets.push_back({ -1,0 });
+        offsets.push_back({-1, 0});
         for (int i = 1; i < rand() % 2 + 1; i++)
         {
-            offsets.push_back({ -1,i });
-            offsets.push_back({ -1,-i });
+            offsets.push_back({-1, i});
+            offsets.push_back({-1, -i});
         }
         break;
     case ParticleType::Water:
-        offsets.push_back({ -1,0 });
+        offsets.push_back({-1, 0});
         for (int i = 1; i < rand() % 6 + 2; i++)
         {
-            offsets.push_back({ -1,i });
-            offsets.push_back({ -1,-i });
+            offsets.push_back({-1, i});
+            offsets.push_back({-1, -i});
         }
         break;
     case ParticleType::Smoke:
-        offsets.push_back({ 1,0 });
+        offsets.push_back({1, 0});
         for (int i = 1; i < rand() % 8 + 2; i++)
         {
-            offsets.push_back({ 1,i });
-            offsets.push_back({ 1,-i });
+            offsets.push_back({1, i});
+            offsets.push_back({1, -i});
         }
         break;
     default:
@@ -192,13 +193,13 @@ void ParticleSystem::update()
                 }
                 bool swapped = false;
 
-
                 auto offsets = getNextCells(i, j, grid[i][j]->type);
-                for (auto& offset : offsets)
+                for (auto &offset : offsets)
                 {
                     glm::ivec2 cell = glm::ivec2(i, j) + offset;
                     CellStatus status = getCellStatus(cell.x, cell.y);
-                    if (status == CellStatus::INVALID) continue;
+                    if (status == CellStatus::INVALID)
+                        continue;
                     if (status == CellStatus::OCCUPIED)
                     {
                         neighborParticle = ParticleInfo::get(grid[cell.x][cell.y]->type);

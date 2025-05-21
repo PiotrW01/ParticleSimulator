@@ -8,7 +8,6 @@
 #include "logger.h"
 #include "particlesystem.h"
 
-
 App::App()
 {
     if (initializeWindow())
@@ -43,7 +42,7 @@ bool App::initializeWindow()
     glfwSetWindowUserPointer(window, this);
 
     glfwSetFramebufferSizeCallback(window, [](GLFWwindow *window, int width, int height)
-    {
+                                   {
         App* app = static_cast<App*>(glfwGetWindowUserPointer(window));
 
         WINDOW_WIDTH = width;
@@ -51,10 +50,9 @@ bool App::initializeWindow()
                                     
         app->cam.viewportWidth = width;
         app->cam.viewportHeight = height;
-        glViewport(0, 0, width, height); 
-    });
-    glfwSetScrollCallback(window, [](GLFWwindow* window, double xoffset, double yoffset)
-        {
+        glViewport(0, 0, width, height); });
+    glfwSetScrollCallback(window, [](GLFWwindow *window, double xoffset, double yoffset)
+                          {
             App* app = static_cast<App*>(glfwGetWindowUserPointer(window));
             if (yoffset > 0)
             {
@@ -66,8 +64,7 @@ bool App::initializeWindow()
                 {
                     app->cam.zoom -= 0.1f;
                 }
-            }
-        });
+            } });
     glfwSetWindowSizeLimits(window, 320, 180, 7680, 4320);
     glfwMakeContextCurrent(window);
 
@@ -124,7 +121,7 @@ void App::run()
         InputManager::update(window);
         Mouse::update(window, cam);
         gui.update();
-        if(!gui.isMouseOverUI())
+        if (!gui.isMouseOverUI())
         {
             if (InputManager::isKeyDown(Btn::LEFT))
             {
@@ -142,6 +139,10 @@ void App::run()
         if (InputManager::isKeyDown(Btn::RIGHT))
         {
             cam.position -= Mouse::mouseDelta * cam.zoom;
+        }
+        if (InputManager::isKeyJustPressed(Key::P))
+        {
+            LOG_INFO << "Particle count: " << ParticleSystem::particleCount;
         }
         if (InputManager::isKeyJustPressed(Key::Z))
         {
@@ -162,7 +163,7 @@ void App::run()
                 LOG_INFO << "Time: " << glfwGetTime() - time;
             }
         }
-        
+
         fpsCounter.addFrame();
         fpsCounter.update(deltaTime);
         while (accumulator >= targetTickTime)
@@ -174,8 +175,8 @@ void App::run()
             accumulator -= targetTickTime;
         }
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f); 
-        glClear(GL_COLOR_BUFFER_BIT);         
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 
         ParticleSystem::render(cam);
         gui.render(cam);
@@ -220,5 +221,4 @@ void App::setTargetTicks(int ticks)
 
 void App::setWindowSize(int width, int height)
 {
-
 }

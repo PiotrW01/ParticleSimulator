@@ -4,9 +4,9 @@
 void FPSCounter::update(double deltaTime)
 {
     acc += deltaTime;
-    if (acc >= 5.0)
+    if (acc >= refreshTime)
     {
-        LOG_INFO << "FPS: " << fps / 5.0;
+        LOG_INFO << "FPS: " << fps / refreshTime;
         acc = 0.0;
         fps = 0;
     }
