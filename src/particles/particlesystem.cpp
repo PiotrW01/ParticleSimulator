@@ -1,11 +1,10 @@
 #include "glad.h"
-#include <GLFW/glfw3.h>
 #include "particlesystem.h"
-#include "logger.h"
-#include "globals.h"
+#include "utils/logger.h"
+#include "utils/globals.h"
+#include "graphics/camera2d.h"
 #include <cstdlib>
 #include <ctime>
-#include "camera2d.h"
 
 std::vector<std::vector<std::shared_ptr<Particle>>> ParticleSystem::grid;
 std::vector<std::shared_ptr<Particle>> ParticleSystem::particles;
@@ -30,7 +29,6 @@ void ParticleSystem::init()
     }
     particles.reserve(height * width);
     std::srand(std::time(0));
-
 	shaderProgram = shaders::compileShaderProgram(shaders::solidColorVertexShader, shaders::solidColorFragmentShader);
 
     // Generate the VAO (Vertex Array Object), VBO (Vertex Buffer Object)

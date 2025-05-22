@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
-#include "GLFW/glfw3.h"
 #include "keys.h"
+struct GLFWwindow;
 
 class InputManager {
 public:

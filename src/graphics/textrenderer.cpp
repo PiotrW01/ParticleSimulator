@@ -1,5 +1,5 @@
+#include "utils/logger.h"
 #include "textrenderer.h"
-#include "logger.h"
 #include "glad.h"
 #include "shaders.h"
 #include "camera2d.h"

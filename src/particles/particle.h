@@ -1,7 +1,7 @@
 #pragma once
 #include "vec2.hpp"
 #include "vec4.hpp"
-#include "colors.h"
+#include "graphics/colors.h"
 
 enum class ParticleType : uint8_t
 {

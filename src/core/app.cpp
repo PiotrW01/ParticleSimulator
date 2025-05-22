@@ -1,13 +1,12 @@
 #include "app.h"
-#include "const.h"
-#include "globals.h"
-#include "textureloader.h"
-#include "fpscounter.h"
-#include "inputmanager.h"
-#include "mouse.h"
-#include "logger.h"
-#include "particlesystem.h"
-#include "textrenderer.h"
+#include "graphics/textureloader.h"
+#include "graphics/textrenderer.h"
+#include "utils/globals.h"
+#include "utils/fpscounter.h"
+#include "utils/logger.h"
+#include "input/inputmanager.h"
+#include "input/mouse.h"
+#include "particles/particlesystem.h"
 
 App::App()
 {
@@ -78,13 +77,10 @@ bool App::initializeWindow()
 
     int x, y, n;
     unsigned char *data = TextureLoader::loadTexture("assets/thumbnail.png", &x, &y, &n);
-    GLFWimage img;
-    img.width = x;
-    img.height = y;
-    img.pixels = data;
 
     if (data)
     {
+        GLFWimage img{img.width = x, img.height = y, img.pixels = data};
         glfwSetWindowIcon(window, 1, &img);
     }
     else

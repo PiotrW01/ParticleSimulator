@@ -1,8 +1,8 @@
 #pragma once
 #include "glad.h"
 #include <GLFW/glfw3.h>
-#include "gui.h"
-#include "camera2d.h"
+#include "gui/gui.h"
+#include "graphics/camera2d.h"
 
 class App
 {

@@ -1,4 +1,5 @@
 #include "inputmanager.h"
+#include "GLFW/glfw3.h"
 
 std::unordered_map<int, bool> InputManager::prevKeys;
 std::unordered_map<int, bool> InputManager::currKeys;

@@ -1,8 +1,8 @@
 #include "gui.h"
-#include "mouse.h"
 #include "button.h"
-#include "inputmanager.h"
-#include "logger.h"
+#include "input/mouse.h"
+#include "input/inputmanager.h"
+#include "utils/logger.h"
 
 GUI::GUI() {
 };

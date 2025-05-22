@@ -1,9 +1,9 @@
 #include "mouse.h"
 #include "GLFW/glfw3.h"
 #include "inputmanager.h"
-#include "camera2d.h"
-#include "globals.h"
-#include "control.h"
+#include "graphics/camera2d.h"
+#include "utils/globals.h"
+#include "gui/control.h"
 
 std::vector<std::shared_ptr<Control>> Mouse::controls;
 glm::vec2 Mouse::mouseDelta = glm::vec2(0.0f, 0.0f);

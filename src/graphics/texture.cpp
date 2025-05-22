@@ -1,11 +1,10 @@
 #include "glad.h"
-#include <GLFW/glfw3.h>
-#include "texture.h"
-#include "glm.hpp"
+#include "utils/globals.h"
+#include "utils/logger.h"
 #include "gtc/matrix_transform.hpp"
-#include "globals.h"
+#include "glm.hpp"
+#include "texture.h"
 #include "textureloader.h"
-#include "logger.h"
 #include "shaders.h"
 #include "camera2d.h"
 

@@ -1,14 +1,20 @@
-
-file(GLOB SOURCES "*.cpp")
-file(GLOB HEADERS "*.h")
-
 add_library(glad STATIC ${CMAKE_SOURCE_DIR}/external/glad/glad.c)
 target_include_directories(glad PRIVATE ${CMAKE_SOURCE_DIR}/external/glad)
 
 
+add_executable(ParticleSimulator)
 
+target_include_directories(ParticleSimulator PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-add_executable(ParticleSimulator ${SOURCES} ${HEADERS})
+add_subdirectory(core)
+add_subdirectory(input)
+add_subdirectory(graphics)
+add_subdirectory(gui)
+add_subdirectory(particles)
+add_subdirectory(utils)
+
 
 add_custom_command(
     TARGET ParticleSimulator POST_BUILD

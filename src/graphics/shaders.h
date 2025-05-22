@@ -1,7 +1,7 @@
 #pragma once
+#include "utils/logger.h"
 #include "vec2.hpp"
 #include "colors.h"
-#include "logger.h"
 struct VertexPosColor
 {
     glm::vec2 position;

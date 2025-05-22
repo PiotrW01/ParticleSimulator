@@ -1,10 +1,10 @@
 #include <vector>
 #define GLM_ENABLE_EXPERIMENTAL
+#include "graphics/shaders.h"
 #include <glm.hpp>
 #include <gtx/norm.hpp>
 #include <cmath>
 #include <unordered_map>
-#include "shaders.h"
 class Camera2D;
 
 constexpr float restDensity = 1000.0f;

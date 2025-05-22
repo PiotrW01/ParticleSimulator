@@ -2,9 +2,9 @@
 #include <vector>
 #include <memory>
 #include "particle.h"
-#include "shaders.h"
-#include "texture.h"
 #include "vec2.hpp"
+#include "graphics/shaders.h"
+#include "graphics/texture.h"
 class Camera2D;
 
 enum class CellStatus

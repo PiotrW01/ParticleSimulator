@@ -1,8 +1,7 @@
 #include "particlesystem2.h"
+#include "utils/logger.h"
+#include "graphics/camera2d.h"
 #include "glad.h"
-#include "GLFW/glfw3.h"
-#include "logger.h"
-#include "camera2d.h"
 
 void ParticleSystem2::step() {
     applyExternalForces();
