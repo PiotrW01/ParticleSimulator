@@ -95,27 +95,27 @@ std::vector<glm::ivec2> ParticleSystem::getNextCells(int i, int j, ParticleType 
     switch (type)
     {
     case ParticleType::Sand:
-        offsets.push_back({-1, 0});
-        for (int i = 1; i < rand() % 2 + 1; i++)
-        {
-            offsets.push_back({-1, i});
-            offsets.push_back({-1, -i});
-        }
-        break;
-    case ParticleType::Water:
-        offsets.push_back({-1, 0});
-        for (int i = 1; i < rand() % 6 + 2; i++)
-        {
-            offsets.push_back({-1, i});
-            offsets.push_back({-1, -i});
-        }
-        break;
-    case ParticleType::Smoke:
         offsets.push_back({1, 0});
-        for (int i = 1; i < rand() % 8 + 2; i++)
+        for (int i = 1; i < rand() % 2 + 1; i++)
         {
             offsets.push_back({1, i});
             offsets.push_back({1, -i});
+        }
+        break;
+    case ParticleType::Water:
+        offsets.push_back({1, 0});
+        for (int i = 1; i < rand() % 6 + 2; i++)
+        {
+            offsets.push_back({1, i});
+            offsets.push_back({1, -i});
+        }
+        break;
+    case ParticleType::Smoke:
+        offsets.push_back({-1, 0});
+        for (int i = 1; i < rand() % 8 + 2; i++)
+        {
+            offsets.push_back({-1, i});
+            offsets.push_back({-1, -i});
         }
         break;
     default:
@@ -133,7 +133,7 @@ void ParticleSystem::update()
         particle->wasUpdated = false;
     }
 
-    for (int i = 0; i < grid.size(); i++)
+    for (int i = grid.size() - 1; i >= 0; i--)
     {
         for (int j = grid[0].size() - 1; j >= 0; j--)
         {

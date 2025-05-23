@@ -26,8 +26,9 @@ glm::vec2 Mouse::getMousePos()
 
 glm::vec2 Mouse::getWorldMousePos()
 {
-    glm::vec2 screenOffset = glm::vec2(lastX, lastY) - glm::vec2(WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f);
-    return (cameraPos + screenOffset) / cameraZoom;
+    //glm::vec2 screenOffset = glm::vec2(lastX, lastY) - glm::vec2(WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f);
+    //return (cameraPos + screenOffset) / cameraZoom;
+    return (cameraPos + glm::vec2(lastX, lastY)) / cameraZoom;
 }
 
 void Mouse::update(GLFWwindow *window, Camera2D &cam)
@@ -36,7 +37,6 @@ void Mouse::update(GLFWwindow *window, Camera2D &cam)
     cameraZoom = cam.zoom;
     double xPos, yPos;
     glfwGetCursorPos(window, &xPos, &yPos);
-    yPos = WINDOW_HEIGHT - yPos;
     mouseDelta = glm::vec2(xPos - lastX, yPos - lastY) / cameraZoom;
     lastX = xPos;
     lastY = yPos;

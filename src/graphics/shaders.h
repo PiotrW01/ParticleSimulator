@@ -29,9 +29,6 @@ namespace shaders
 
             void main()
             {
-                //vec2 flippedPos = vec2(aPos.x, windowSize.y - aPos.y);
-                //vec2 ndcPos = (flippedPos / windowSize) * 2.0 - 1.0;
-                //gl_Position = vec4(ndcPos, 0.0, 1.0);
                 gl_Position = cMatrix * vec4(aPos, 0.0, 1.0);
                 vColor = aColor;
             }
@@ -76,7 +73,38 @@ namespace shaders
         }
     )";
 
-	constexpr const char* textVertexShader = R"(
+    constexpr const char* textVertexShader = R"(
+        #version 330 core
+        layout (location = 0) in vec2 aPos;
+        layout (location = 1) in vec2 aUV;
+    
+        uniform mat4 pMatrix;
+        out vec2 texCoord;
+    
+        void main()
+        {
+            gl_Position = pMatrix * vec4(aPos, 0.0, 1.0);
+            texCoord = aUV;
+        }
+    )";
+
+    constexpr const char* textFragmentShader = R"(
+        #version 330 core
+        in vec2 texCoord;
+        out vec4 FragColor;
+
+        uniform sampler2D fontTexture;
+        uniform vec3 textColor;
+    
+        void main()
+        {
+            float alpha = texture(fontTexture, texCoord).r;
+            //alpha = 1.0;
+            FragColor = vec4(textColor, alpha);
+        }
+    )";
+
+	constexpr const char* oldTextVertexShader = R"(
         #version 330 core
         layout (location = 0) in vec4 vertex;
     
@@ -90,7 +118,7 @@ namespace shaders
         }
     )";
 
-	constexpr const char* textFragmentShader = R"(
+	constexpr const char* oldTextFragmentShader = R"(
         #version 330 core
         in vec2 texCoord;
         uniform sampler2D text;

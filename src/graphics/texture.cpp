@@ -144,16 +144,16 @@ void Texture::prepare()
     glGenBuffers(1, &VBO);
 
     // top left
-    VertexPosTexture v0 = { {0.0f, 0.0f}, {0.0f, 1.0f} };
+    VertexPosTexture v0 = { {0.0f, 0.0f}, {0.0f, 0.0f} };
 
     // bottom left
-    VertexPosTexture v1 = { {0.0f, 1.0f}, {0.0f, 0.0f} };
+    VertexPosTexture v1 = { {0.0f, 1.0f}, {0.0f, 1.0f} };
 
     // bottom right
-    VertexPosTexture v2 = { {1.0f, 1.0f}, {1.0f, 0.0f} };
+    VertexPosTexture v2 = { {1.0f, 1.0f}, {1.0f, 1.0f} };
 
     // top right
-    VertexPosTexture v3 = { {1.0f, 0.0f}, {1.0f, 1.0f} };
+    VertexPosTexture v3 = { {1.0f, 0.0f}, {1.0f, 0.0f} };
 
     //top left, bottom left, bottom right
     //top right, top left, bottom right

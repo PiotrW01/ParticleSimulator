@@ -21,7 +21,7 @@ glm::mat4 Camera2D::getProjectionMatrix() const
 {
     float halfW = viewportWidth / 2.0f;
     float halfH = viewportHeight / 2.0f;
-    return glm::ortho(-halfW, halfW, -halfH, halfH);
+    return glm::ortho(0.0f, viewportWidth, viewportHeight, 0.0f);
 }
 
 glm::mat4 Camera2D::getCombinedMatrix() const

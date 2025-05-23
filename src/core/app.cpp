@@ -1,8 +1,6 @@
 #include "app.h"
 #include "graphics/textureloader.h"
-#include "graphics/textrenderer.h"
 #include "utils/globals.h"
-#include "utils/fpscounter.h"
 #include "utils/logger.h"
 #include "input/inputmanager.h"
 #include "input/mouse.h"
@@ -13,10 +11,12 @@ App::App()
     if (initializeWindow())
     {
         LOG_INFO << "App initialized";
+        appError = false;
     }
     else
     {
         LOG_ERROR << "Error during app initialization";
+        appError = true;
     }
 }
 
@@ -76,117 +76,120 @@ bool App::initializeWindow()
     }
 
     int x, y, n;
-    unsigned char *data = TextureLoader::loadTexture("assets/thumbnail.png", &x, &y, &n);
+    unsigned char *icon_data = TextureLoader::loadTexture("assets/thumbnail.png", &x, &y, &n);
 
-    if (data)
+    if (icon_data)
     {
-        GLFWimage img{img.width = x, img.height = y, img.pixels = data};
+        GLFWimage img{img.width = x, img.height = y, img.pixels = icon_data};
         glfwSetWindowIcon(window, 1, &img);
     }
     else
     {
         LOG_WARN << "icon loading failed";
     }
-    TextureLoader::free(data);
+    TextureLoader::free(icon_data);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     return true;
 }
 
 void App::run()
 {
-    cam.viewportWidth = WINDOW_WIDTH;
-    cam.viewportHeight = WINDOW_HEIGHT;
-    cam.position = glm::vec2(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
-    ParticleSystem::init();
-    Mouse::init(window);
-    gui.init();
+    if (appError) return;
+    init();
 
-    FPSCounter fpsCounter;
     double lastTickTime = glfwGetTime();
     double lastFrameTime = glfwGetTime();
     double accumulator = 0.0;
-    bool step = false;
-
-    TextRenderer t;
-    t.init();
 
     while (!glfwWindowShouldClose(window))
     {
+        glfwPollEvents();
+
         double now = glfwGetTime();
         double deltaTime = now - lastTickTime;
         lastTickTime = now;
         accumulator += deltaTime;
-
-        glfwPollEvents();
+        
         InputManager::update(window);
         Mouse::update(window, cam);
         gui.update();
-        if (!gui.isMouseOverUI())
-        {
-            if (InputManager::isKeyDown(Btn::LEFT))
-            {
-                ParticleSystem::spawnParticles(Mouse::getWorldMousePos(), ParticleType::Sand, 5);
-            }
-            if (InputManager::isKeyDown(Key::ONE))
-            {
-                ParticleSystem::spawnParticles(Mouse::getWorldMousePos(), ParticleType::Water, 5);
-            }
-            if (InputManager::isKeyDown(Key::THREE))
-            {
-                ParticleSystem::spawnParticles(Mouse::getWorldMousePos(), ParticleType::Smoke, 5);
-            }
-        }
-        if (InputManager::isKeyDown(Btn::RIGHT))
-        {
-            cam.position -= Mouse::mouseDelta * cam.zoom;
-        }
-        if (InputManager::isKeyJustPressed(Key::P))
-        {
-            LOG_INFO << "Particle count: " << ParticleSystem::particleCount;
-        }
-        if (InputManager::isKeyJustPressed(Key::Z))
-        {
-            step = !step;
-        }
-        if (InputManager::isKeyJustPressed(Key::R))
-        {
-            cam.position = glm::vec2(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
-            cam.zoom = 1.0f;
-            cam.rotation = 0.0f;
-        }
-        if (step || true)
-        {
-            if (InputManager::isKeyJustPressed(Key::TWO))
-            {
-                auto time = glfwGetTime();
-                ParticleSystem::update();
-                LOG_INFO << "Time: " << glfwGetTime() - time;
-            }
-        }
+        handleInput();
 
         fpsCounter.addFrame();
         fpsCounter.update(deltaTime);
         while (accumulator >= targetTickTime)
         {
-            if (!step)
-            {
-                ParticleSystem::update();
-            }
+            ParticleSystem::update();
             accumulator -= targetTickTime;
         }
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
-        ParticleSystem::render(cam);
-        gui.render(cam);
-		t.RenderText(cam, "Fps: " + std::to_string(fpsCounter.fps), 0.0f, cam.viewportHeight - 48, 1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        render();
         glfwSwapBuffers(window);
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    }
+}
+
+void App::init()
+{
+    cam.viewportWidth = WINDOW_WIDTH;
+    cam.viewportHeight = WINDOW_HEIGHT;
+    cam.position = glm::vec2(0, 0);
+    ParticleSystem::init();
+    Mouse::init(window);
+    gui.init();
+    t.init();
+}
+
+void App::handleInput()
+{
+    if (!gui.isMouseOverUI())
+    {
+        if (InputManager::isKeyDown(Btn::LEFT))
         {
-            glfwSetWindowShouldClose(window, true);
+            ParticleSystem::spawnParticles(Mouse::getWorldMousePos(), ParticleType::Sand, 5);
+        }
+        if (InputManager::isKeyDown(Key::ONE))
+        {
+            ParticleSystem::spawnParticles(Mouse::getWorldMousePos(), ParticleType::Water, 5);
+        }
+        if (InputManager::isKeyDown(Key::THREE))
+        {
+            ParticleSystem::spawnParticles(Mouse::getWorldMousePos(), ParticleType::Smoke, 5);
         }
     }
+    if (InputManager::isKeyDown(Btn::RIGHT))
+    {
+        cam.position -= Mouse::mouseDelta * cam.zoom;
+    }
+    if (InputManager::isKeyJustPressed(Key::P))
+    {
+        LOG_INFO << "Particle count: " << ParticleSystem::particleCount;
+    }
+    if (InputManager::isKeyJustPressed(Key::R))
+    {
+        cam.position = glm::vec2(0.0f, 0.0f);
+        cam.zoom = 1.0f;
+        cam.rotation = 0.0f;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    {
+        glfwSetWindowShouldClose(window, true);
+    }
+}
+
+void App::render()
+{
+    ParticleSystem::render(cam);
+    gui.render(cam);
+    t.RenderText(cam, "Fps: " + std::to_string(fpsCounter.fps), 
+        0, 0, 
+        1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+    auto pos = Mouse::getWorldMousePos();
+    t.RenderText(cam, "Mouse pos: " + std::to_string(pos.x) + " " + std::to_string(pos.y),
+        0, t.fontSize,
+        1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 }
 
 void App::vSyncEnabled(bool enabled)
