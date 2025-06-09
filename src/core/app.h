@@ -5,6 +5,7 @@
 #include "graphics/camera2d.h"
 #include "graphics/textrenderer.h"
 #include "utils/fpscounter.h"
+#include "particles/particlesystem.h"
 
 class App
 {
@@ -21,8 +22,9 @@ private:
     Camera2D cam;
     GLFWwindow *window = nullptr;
     GUI gui;
-    TextRenderer t;
+    TextRenderer textRenderer;
 	FPSCounter fpsCounter;
+	ParticleSystem particleSystem;
     int targetFPS = 0;
     int targetTicks = 20;
     double targetFrameTime = 0.0;

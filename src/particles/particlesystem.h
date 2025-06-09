@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 #include <memory>
-#include "particle.h"
 #include "vec2.hpp"
+#include "particle.h"
 #include "graphics/shaders.h"
 #include "graphics/texture.h"
 class Camera2D;
@@ -11,28 +11,29 @@ enum class CellStatus
 {
     INVALID,
     EMPTY,
-    OCCUPIED
+    OCCUPIED,
 };
 
 class ParticleSystem
 {
 public:
-    static void init();
-    static void spawnParticle(int x, int y, ParticleType type = ParticleType::Sand);
-    static void spawnParticles(const glm::vec2 &spawnPos, ParticleType type = ParticleType::Sand, int radius = 1);
-    static void update();
-    static void render(Camera2D &camera);
-    static void resize(int size);
-    static unsigned int particleCount;
-
+    void init();
+    void spawnParticle(int x, int y, ParticleType type = ParticleType::Sand);
+    void spawnParticles(const glm::vec2 &spawnPos, ParticleType type = ParticleType::Sand, int radius = 1);
+    void update();
+    void render(Camera2D &camera);
+    void resize(int size);
+public:
+    unsigned int particleCount = 0;
 private:
-    static int width, height;
-    static Texture texture;
-    static std::vector<glm::ivec2> getNextCells(int j, int i, ParticleType type);
-    static std::vector<std::vector<std::shared_ptr<Particle>>> grid;
-    static std::vector<std::shared_ptr<Particle>> particles;
-    static std::vector<VertexPosColor> vertices;
-    static unsigned int VAO, VBO;
-    static unsigned int shaderProgram;
-    static CellStatus getCellStatus(int x, int y);
+    std::vector<glm::ivec2> getNextCells(int j, int i, ParticleType type);
+    CellStatus getCellStatus(int x, int y);
+private:
+    int width = 600, height = 400;
+    Texture texture = { 0.0f, 0.0f };
+    std::vector<std::vector<std::shared_ptr<Particle>>> grid;
+    std::vector<std::shared_ptr<Particle>> particles;
+    std::vector<VertexPosColor> vertices;
+    unsigned int VAO = 0, VBO = 0;
+    unsigned int shaderProgram = 0;
 };

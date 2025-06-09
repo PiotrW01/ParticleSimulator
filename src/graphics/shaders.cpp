@@ -1,5 +1,6 @@
 #include "shaders.h"
 #include "glad.h"
+#include "utils/logger.h"
 
 unsigned int shaders::compileShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource)
 {

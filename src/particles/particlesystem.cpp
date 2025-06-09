@@ -1,23 +1,13 @@
 #include "glad.h"
 #include "particlesystem.h"
-#include "utils/logger.h"
 #include "utils/globals.h"
 #include "graphics/camera2d.h"
 #include <cstdlib>
 #include <ctime>
 
-std::vector<std::vector<std::shared_ptr<Particle>>> ParticleSystem::grid;
-std::vector<std::shared_ptr<Particle>> ParticleSystem::particles;
-std::vector<VertexPosColor> ParticleSystem::vertices;
-unsigned int ParticleSystem::VAO, ParticleSystem::VBO;
-unsigned int ParticleSystem::shaderProgram;
-unsigned int ParticleSystem::particleCount = 0;
-int ParticleSystem::width = 600;
-int ParticleSystem::height = 400;
-Texture ParticleSystem::texture = {0.0f, 0.0f};
-
 void ParticleSystem::init()
 {
+    texture = {0.0f, 0.0f};
     texture.load("assets/white.png");
     texture.setPosition(0, 0);
     texture.setSize(width, height);
@@ -54,76 +44,6 @@ void ParticleSystem::init()
     glBindVertexArray(0);
 }
 
-void ParticleSystem::spawnParticle(int x, int y, ParticleType type)
-{
-
-    if (y < grid.size() && x < grid[0].size())
-    {
-        if (!grid[y][x])
-        {
-            auto particle = std::make_shared<Particle>(type);
-            particle->position = glm::vec2(y, x);
-            grid[y][x] = particle;
-            particles.push_back(particle);
-            particleCount++;
-        }
-    }
-}
-
-void ParticleSystem::spawnParticles(const glm::vec2 &spawnPos, ParticleType type, int radius)
-{
-    int rSquared = radius * radius;
-
-    for (int y = spawnPos.y - radius; y <= spawnPos.y + radius; ++y)
-    {
-        for (int x = spawnPos.x - radius; x <= spawnPos.x + radius; ++x)
-        {
-            int dx = x - spawnPos.x;
-            int dy = y - spawnPos.y;
-            if (dx * dx + dy * dy <= rSquared)
-            {
-                spawnParticle(x, y, type);
-            }
-        }
-    }
-}
-
-std::vector<glm::ivec2> ParticleSystem::getNextCells(int i, int j, ParticleType type)
-{
-
-    std::vector<glm::ivec2> offsets;
-    switch (type)
-    {
-    case ParticleType::Sand:
-        offsets.push_back({1, 0});
-        for (int i = 1; i < rand() % 2 + 1; i++)
-        {
-            offsets.push_back({1, i});
-            offsets.push_back({1, -i});
-        }
-        break;
-    case ParticleType::Water:
-        offsets.push_back({1, 0});
-        for (int i = 1; i < rand() % 6 + 2; i++)
-        {
-            offsets.push_back({1, i});
-            offsets.push_back({1, -i});
-        }
-        break;
-    case ParticleType::Smoke:
-        offsets.push_back({-1, 0});
-        for (int i = 1; i < rand() % 8 + 2; i++)
-        {
-            offsets.push_back({-1, i});
-            offsets.push_back({-1, -i});
-        }
-        break;
-    default:
-        break;
-    }
-    return offsets;
-}
-
 void ParticleSystem::update()
 {
     vertices.clear();
@@ -141,8 +61,9 @@ void ParticleSystem::update()
             {
                 int row = i, col = j;
                 ParticleInfo currentParticle = ParticleInfo::get(grid[i][j]->type);
+
                 ParticleInfo neighborParticle = currentParticle;
-                if (grid[i][j]->wasUpdated)
+                if (grid[i][j]->wasUpdated || currentParticle.isSolid)
                 {
                     vertices.push_back(VertexPosColor({glm::vec2(col, row), currentParticle.color}));
                     continue;
@@ -159,6 +80,8 @@ void ParticleSystem::update()
                     if (status == CellStatus::OCCUPIED)
                     {
                         neighborParticle = ParticleInfo::get(grid[cell.x][cell.y]->type);
+						if (neighborParticle.isSolid)
+							continue;
                         if (currentParticle.density > neighborParticle.density)
                         {
                             if (!grid[cell.x][cell.y]->wasUpdated)
@@ -199,27 +122,12 @@ void ParticleSystem::update()
     }
 }
 
-CellStatus ParticleSystem::getCellStatus(int row, int col)
-{
-    if (row >= height || col >= width || row < 0 || col < 0)
-        return CellStatus::INVALID;
-    if (!grid[row][col])
-        return CellStatus::EMPTY;
-    return CellStatus::OCCUPIED;
-}
-
 void ParticleSystem::render(Camera2D &camera)
 {
     auto cMatrix = camera.getCombinedMatrix();
     texture.draw(camera);
 
     unsigned int cLoc = glGetUniformLocation(shaderProgram, "cMatrix");
-
-    if (cLoc == -1)
-    {
-        LOG_ERROR << "Could not get uniform";
-        return;
-    }
     glUseProgram(shaderProgram);
     glUniformMatrix4fv(cLoc, 1, GL_FALSE, &cMatrix[0][0]);
 
@@ -234,7 +142,81 @@ void ParticleSystem::render(Camera2D &camera)
     glBindVertexArray(0);
 }
 
-void ParticleSystem::resize(int size)
+void ParticleSystem::spawnParticle(int x, int y, ParticleType type)
 {
-    grid.resize(size);
+
+    if (y < grid.size() && x < grid[0].size())
+    {
+        if (!grid[y][x])
+        {
+            auto particle = std::make_shared<Particle>(type);
+            particle->position = glm::vec2(y, x);
+            grid[y][x] = particle;
+            particles.push_back(particle);
+            particleCount++;
+        }
+    }
+}
+
+void ParticleSystem::spawnParticles(const glm::vec2 &spawnPos, ParticleType type, int radius)
+{
+    int rSquared = radius * radius;
+
+    for (int y = spawnPos.y - radius; y <= spawnPos.y + radius; ++y)
+    {
+        for (int x = spawnPos.x - radius; x <= spawnPos.x + radius; ++x)
+        {
+            int dx = x - spawnPos.x;
+            int dy = y - spawnPos.y;
+            if (dx * dx + dy * dy <= rSquared)
+            {
+                spawnParticle(x, y, type);
+            }
+        }
+    }
+}
+
+CellStatus ParticleSystem::getCellStatus(int row, int col)
+{
+    if (row >= height || col >= width || row < 0 || col < 0)
+        return CellStatus::INVALID;
+    if (!grid[row][col])
+        return CellStatus::EMPTY;
+    return CellStatus::OCCUPIED;
+}
+
+std::vector<glm::ivec2> ParticleSystem::getNextCells(int i, int j, ParticleType type)
+{
+
+    std::vector<glm::ivec2> offsets;
+    switch (type)
+    {
+    case ParticleType::Sand:
+        offsets.push_back({1, 0});
+        for (int i = 1; i < rand() % 2 + 1; i++)
+        {
+            offsets.push_back({1, i});
+            offsets.push_back({1, -i});
+        }
+        break;
+    case ParticleType::Water:
+        offsets.push_back({1, 0});
+        for (int i = 1; i < rand() % 6 + 2; i++)
+        {
+            offsets.push_back({1, i});
+            offsets.push_back({1, -i});
+        }
+        break;
+    case ParticleType::Smoke:
+        offsets.push_back({-1, 0});
+        for (int i = 1; i < rand() % 8 + 2; i++)
+        {
+            offsets.push_back({-1, i});
+            offsets.push_back({-1, -i});
+        }
+        break;
+    default:
+        break;
+    }
+    return offsets;
 }

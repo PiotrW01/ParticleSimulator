@@ -1,5 +1,4 @@
 #pragma once
-#include "utils/logger.h"
 #include "vec2.hpp"
 #include "colors.h"
 struct VertexPosColor

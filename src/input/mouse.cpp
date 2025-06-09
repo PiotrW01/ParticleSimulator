@@ -2,7 +2,6 @@
 #include "GLFW/glfw3.h"
 #include "inputmanager.h"
 #include "graphics/camera2d.h"
-#include "utils/globals.h"
 #include "gui/control.h"
 
 std::vector<std::shared_ptr<Control>> Mouse::controls;
@@ -16,7 +15,7 @@ void Mouse::init(GLFWwindow *window)
     double xPos, yPos;
     glfwGetCursorPos(window, &xPos, &yPos);
     lastX = xPos;
-    lastY = WINDOW_HEIGHT - yPos;
+    lastY = yPos;
 }
 
 glm::vec2 Mouse::getMousePos()

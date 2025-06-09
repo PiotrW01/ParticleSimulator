@@ -4,7 +4,6 @@
 #include "utils/logger.h"
 #include "input/inputmanager.h"
 #include "input/mouse.h"
-#include "particles/particlesystem.h"
 
 App::App()
 {
@@ -37,16 +36,13 @@ bool App::initializeWindow()
     }
 
     // glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "window", NULL, NULL);
+    window = glfwCreateWindow(600, 400, "window", NULL, NULL);
 
     glfwSetWindowUserPointer(window, this);
 
     glfwSetFramebufferSizeCallback(window, [](GLFWwindow *window, int width, int height)
                                    {
         App* app = static_cast<App*>(glfwGetWindowUserPointer(window));
-
-        WINDOW_WIDTH = width;
-        WINDOW_HEIGHT = height;
                                     
         app->cam.viewportWidth = width;
         app->cam.viewportHeight = height;
@@ -88,7 +84,7 @@ bool App::initializeWindow()
         LOG_WARN << "icon loading failed";
     }
     TextureLoader::free(icon_data);
-    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    //glViewport(0, 0, windowWidth, windowHeight);
     return true;
 }
 
@@ -96,7 +92,6 @@ void App::run()
 {
     if (appError) return;
     init();
-
     double lastTickTime = glfwGetTime();
     double lastFrameTime = glfwGetTime();
     double accumulator = 0.0;
@@ -119,7 +114,7 @@ void App::run()
         fpsCounter.update(deltaTime);
         while (accumulator >= targetTickTime)
         {
-            ParticleSystem::update();
+            particleSystem.update();
             accumulator -= targetTickTime;
         }
 
@@ -132,13 +127,12 @@ void App::run()
 
 void App::init()
 {
-    cam.viewportWidth = WINDOW_WIDTH;
-    cam.viewportHeight = WINDOW_HEIGHT;
+
     cam.position = glm::vec2(0, 0);
-    ParticleSystem::init();
+    particleSystem.init();
     Mouse::init(window);
     gui.init();
-    t.init();
+    textRenderer.init();
 }
 
 void App::handleInput()
@@ -147,15 +141,19 @@ void App::handleInput()
     {
         if (InputManager::isKeyDown(Btn::LEFT))
         {
-            ParticleSystem::spawnParticles(Mouse::getWorldMousePos(), ParticleType::Sand, 5);
+            particleSystem.spawnParticles(Mouse::getWorldMousePos(), ParticleType::Sand, 5);
         }
         if (InputManager::isKeyDown(Key::ONE))
         {
-            ParticleSystem::spawnParticles(Mouse::getWorldMousePos(), ParticleType::Water, 5);
+            particleSystem.spawnParticles(Mouse::getWorldMousePos(), ParticleType::Water, 5);
         }
         if (InputManager::isKeyDown(Key::THREE))
         {
-            ParticleSystem::spawnParticles(Mouse::getWorldMousePos(), ParticleType::Smoke, 5);
+            particleSystem.spawnParticles(Mouse::getWorldMousePos(), ParticleType::Smoke, 5);
+        }
+        if (InputManager::isKeyDown(Key::FOUR))
+        {
+            particleSystem.spawnParticles(Mouse::getWorldMousePos(), ParticleType::Stone, 2);
         }
     }
     if (InputManager::isKeyDown(Btn::RIGHT))
@@ -164,7 +162,7 @@ void App::handleInput()
     }
     if (InputManager::isKeyJustPressed(Key::P))
     {
-        LOG_INFO << "Particle count: " << ParticleSystem::particleCount;
+        LOG_INFO << "Particle count: " << particleSystem.particleCount;
     }
     if (InputManager::isKeyJustPressed(Key::R))
     {
@@ -181,14 +179,17 @@ void App::handleInput()
 
 void App::render()
 {
-    ParticleSystem::render(cam);
+    particleSystem.render(cam);
     gui.render(cam);
-    t.RenderText(cam, "Fps: " + std::to_string(fpsCounter.fps), 
+    textRenderer.RenderText(cam, "Fps: " + std::to_string(fpsCounter.fps), 
         0, 0, 
         1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
     auto pos = Mouse::getWorldMousePos();
-    t.RenderText(cam, "Mouse pos: " + std::to_string(pos.x) + " " + std::to_string(pos.y),
-        0, t.fontSize,
+    textRenderer.RenderText(cam, "Mouse pos: " + std::to_string(pos.x) + " " + std::to_string(pos.y),
+        0, textRenderer.fontSize,
+        1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+    textRenderer.RenderText(cam, "Particles: " + std::to_string(particleSystem.particleCount),
+        0, textRenderer.fontSize * 2,
         1.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 }
 
@@ -225,4 +226,5 @@ void App::setTargetTicks(int ticks)
 
 void App::setWindowSize(int width, int height)
 {
+	glfwSetWindowSize(window, width, height);
 }

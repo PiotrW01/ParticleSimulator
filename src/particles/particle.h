@@ -7,7 +7,8 @@ enum class ParticleType : uint8_t
 {
     Water,
     Sand,
-    Smoke
+    Smoke,
+    Stone
 };
 
 class Particle
@@ -27,6 +28,7 @@ public:
     float density;
     float viscosity;
     float lifeTime;
+    bool isSolid;
     Color color;
     static ParticleInfo get(ParticleType type);
 };
